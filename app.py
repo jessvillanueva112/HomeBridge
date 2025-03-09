@@ -1,9 +1,16 @@
 import os
 import logging
+from dotenv import load_dotenv
+from pathlib import Path
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+
+# Load environment variables from .env file if it exists
+env_path = Path('.') / '.env'
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -13,7 +20,7 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 # create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+app.secret_key = os.environ.get("SESSION_SECRET", os.urandom(24))
 
 # configure the database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///homesickness.db")

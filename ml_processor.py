@@ -106,11 +106,26 @@ def load_resilience_strategies():
 def analyze_text(text):
     """
     Analyze text to determine sentiment and homesickness level.
+    Using Gemini API if available, with fallback to traditional NLP techniques.
     
     Returns:
         tuple: (sentiment_score, homesickness_level)
     """
     try:
+        # First, try to use Gemini for enhanced analysis
+        from utils.gemini_integration import generate_analysis
+        
+        gemini_analysis = generate_analysis(text)
+        
+        if gemini_analysis and "sentiment_score" in gemini_analysis and "homesickness_level" in gemini_analysis:
+            sentiment_score = gemini_analysis["sentiment_score"]
+            homesickness_level = gemini_analysis["homesickness_level"]
+            logging.info(f"Using Gemini analysis: Sentiment={sentiment_score}, Homesickness={homesickness_level}")
+            return sentiment_score, homesickness_level
+        
+        # Fallback to traditional analysis if Gemini isn't available or response didn't contain expected fields
+        logging.info("Falling back to traditional text analysis")
+        
         # Initialize sentiment analyzer
         sia = SentimentIntensityAnalyzer()
         
@@ -154,6 +169,7 @@ def analyze_text(text):
 def get_resilience_strategies(text, homesickness_level):
     """
     Get personalized resilience strategies based on text content and homesickness level.
+    Using Gemini API if available, with fallback to traditional method.
     
     Args:
         text (str): User's input text
@@ -163,6 +179,18 @@ def get_resilience_strategies(text, homesickness_level):
         list: List of strategy dictionaries
     """
     try:
+        # First, try to use Gemini for personalized strategies
+        from utils.gemini_integration import generate_resilience_strategies
+        
+        gemini_strategies = generate_resilience_strategies(text, homesickness_level)
+        
+        if gemini_strategies and len(gemini_strategies) > 0:
+            logging.info(f"Using Gemini-generated strategies: {len(gemini_strategies)} strategies returned")
+            return gemini_strategies
+        
+        # Fallback to traditional approach if Gemini isn't available
+        logging.info("Falling back to traditional strategy selection")
+        
         strategies = load_resilience_strategies()
         
         # Validate homesickness_level is within expected range
@@ -178,9 +206,6 @@ def get_resilience_strategies(text, homesickness_level):
         
         # Select strategies from the appropriate category
         selected_strategies = strategies[category]
-        
-        # For a real application, we would use more sophisticated matching
-        # This is a simplified approach for the MVP
         
         # Return a subset of strategies (2-3)
         num_strategies = min(3, len(selected_strategies))
