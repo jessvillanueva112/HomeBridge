@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sentimentDescription.textContent = 'Your responses indicate feelings of sadness or distress. This is common when adjusting to a new environment.';
             } else if (sentimentScore < 0.3) {
                 sentimentBar.className = 'progress-bar bg-warning';
-                sentimentDescription.textContent = 'Your responses indicate mixed emotions. It's normal to have both positive and challenging experiences during adjustment.';
+                sentimentDescription.textContent = 'Your responses indicate mixed emotions. It is normal to have both positive and challenging experiences during adjustment.';
             } else {
                 sentimentBar.className = 'progress-bar bg-success';
                 sentimentDescription.textContent = 'Your responses indicate positive emotions. Maintaining this outlook will help with adjustment.';
