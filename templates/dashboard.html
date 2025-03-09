@@ -1,0 +1,393 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - HomeBridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Your Resilience Dashboard</h1>
+                <a href="#voice-section" class="btn btn-primary">
+                    <i class="fas fa-microphone me-2"></i>New Voice Entry
+                </a>
+            </div>
+            
+            <!-- Progress Summary Card -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Your Progress</h4>
+                    <p class="text-muted">Track your resilience journey with HomeBridge</p>
+                    
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                    
+                    <div class="progress-items mt-4">
+                        <div class="progress-item">
+                            <input type="checkbox" id="progress-1" class="form-check-input">
+                            <label for="progress-1">Complete your first voice entry</label>
+                        </div>
+                        <div class="progress-item">
+                            <input type="checkbox" id="progress-2" class="form-check-input">
+                            <label for="progress-2">Try a recommended resilience strategy</label>
+                        </div>
+                        <div class="progress-item">
+                            <input type="checkbox" id="progress-3" class="form-check-input">
+                            <label for="progress-3">Record your first gratitude practice</label>
+                        </div>
+                        <div class="progress-item">
+                            <input type="checkbox" id="progress-4" class="form-check-input">
+                            <label for="progress-4">Explore UBC campus resources</label>
+                        </div>
+                        <div class="progress-item">
+                            <input type="checkbox" id="progress-5" class="form-check-input">
+                            <label for="progress-5">Connect with another international student</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Entries -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Recent Entries</h4>
+                    <p class="text-muted">Your latest conversations with HomeBridge</p>
+                    
+                    {% if entries %}
+                        {% for entry in entries %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title">Entry #{{ entry.id }}</h5>
+                                    <span class="badge bg-secondary">{{ entry.created_at.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                <p class="card-text">{{ entry.content[:150] }}{% if entry.content|length > 150 %}...{% endif %}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-sm btn-outline-info view-strategies-btn" data-entry-id="{{ entry.id }}">
+                                        View Strategies
+                                    </button>
+                                    <div>
+                                        Sentiment: 
+                                        {% if entry.sentiment_score > 0.05 %}
+                                            <span class="badge bg-success">Positive</span>
+                                        {% elif entry.sentiment_score < -0.05 %}
+                                            <span class="badge bg-danger">Negative</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Neutral</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-dots fa-3x text-muted mb-3"></i>
+                            <p>You haven't created any entries yet. Start by recording your thoughts and feelings.</p>
+                            <a href="#voice-section" class="btn btn-primary">Create Your First Entry</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Voice Entry Section (same as on index page) -->
+            <div id="voice-section" class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">New Voice Entry</h4>
+                    <p class="text-muted">Share how you're feeling about being away from home</p>
+                    
+                    <div id="voice-container">
+                        <div class="text-center mb-4">
+                            <h5><span id="recording-status">Ready to listen</span> <span id="recording-indicator"></span></h5>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-3 mb-4">
+                            <button id="start-recording-btn" class="btn btn-primary">
+                                <i class="fas fa-microphone me-2"></i>Start Recording
+                            </button>
+                            <button id="stop-recording-btn" class="btn btn-danger d-none">
+                                <i class="fas fa-stop-circle me-2"></i>Stop Recording
+                            </button>
+                            <button id="process-recording-btn" class="btn btn-success d-none">
+                                <i class="fas fa-check-circle me-2"></i>Process Recording
+                            </button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="card bg-dark">
+                                <div class="card-body">
+                                    <p class="mb-2 text-muted small">Your spoken words will appear here:</p>
+                                    <div id="transcription-text" class="fw-bold"></div>
+                                    <div id="interim-text" class="text-muted"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center d-none" id="processing-spinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing your input...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Container -->
+            <div id="results-container" class="card shadow-sm mb-4 d-none">
+                <div class="card-body">
+                    <h4 class="card-title">Your Personalized Resilience Strategies</h4>
+                    <div id="analysis-data" class="mb-3 text-info"></div>
+                    <div id="strategies-container">
+                        <!-- Strategies will be inserted here via JavaScript -->
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="/resources" id="view-resources-btn" class="btn btn-outline-primary d-none">
+                            <i class="fas fa-external-link-alt me-2"></i>View Related Resources
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Quick Actions Sidebar -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Quick Actions</h4>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#gratitudeModal">
+                            <i class="fas fa-heart me-2"></i>Daily Gratitude
+                        </button>
+                        <a href="/resources" class="btn btn-outline-info">
+                            <i class="fas fa-book me-2"></i>UBC Resources
+                        </a>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <i class="fas fa-comment me-2"></i>Provide Feedback
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tips Card -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Resilience Tips</h4>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h5><i class="fas fa-user-friends text-primary me-2"></i>Connect Regularly</h5>
+                        <p class="text-muted">Schedule regular video calls with family and friends from home to maintain your connection.</p>
+                    </div>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h5><i class="fas fa-utensils text-primary me-2"></i>Food as Comfort</h5>
+                        <p class="text-muted">Cook familiar dishes from home or find authentic restaurants in Vancouver.</p>
+                    </div>
+                    <div>
+                        <h5><i class="fas fa-calendar-check text-primary me-2"></i>Create Routines</h5>
+                        <p class="text-muted">Establish new routines that provide structure and comfort in your new environment.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Community Events -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Upcoming Campus Events</h4>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h5>International Students Mixer</h5>
+                        <p class="text-muted mb-1">Meet fellow international students in a casual setting.</p>
+                        <small class="text-info"><i class="fas fa-calendar me-1"></i>Sep 15, 2023 • 6:00 PM</small>
+                    </div>
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h5>Cultural Food Festival</h5>
+                        <p class="text-muted mb-1">Taste dishes from around the world prepared by UBC students.</p>
+                        <small class="text-info"><i class="fas fa-calendar me-1"></i>Sep 22, 2023 • 12:00 PM</small>
+                    </div>
+                    <div>
+                        <h5>Wellness Workshop</h5>
+                        <p class="text-muted mb-1">Learn practical strategies for managing stress and homesickness.</p>
+                        <small class="text-info"><i class="fas fa-calendar me-1"></i>Sep 28, 2023 • 4:00 PM</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gratitude Modal -->
+<div class="modal fade" id="gratitudeModal" tabindex="-1" aria-labelledby="gratitudeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gratitudeModalLabel">Record Your Gratitude</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="gratitude-form">
+                    <div class="mb-3">
+                        <label for="gratitude-input" class="form-label">What are you grateful for today?</label>
+                        <textarea class="form-control" id="gratitude-input" rows="3" required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Provide Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedback-form">
+                    <div class="mb-3">
+                        <label for="feedback-type" class="form-label">Feedback Type</label>
+                        <select class="form-select" id="feedback-type">
+                            <option value="suggestion">Suggestion</option>
+                            <option value="issue">Issue Report</option>
+                            <option value="praise">Positive Feedback</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback-content" class="form-label">Your Feedback</label>
+                        <textarea class="form-control" id="feedback-content" rows="3" required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Strategies Modal -->
+<div class="modal fade" id="strategiesModal" tabindex="-1" aria-labelledby="strategiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="strategiesModalLabel">Recommended Strategies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="strategies-modal-content">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading strategies...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // View strategies modal handling
+        const strategiesBtns = document.querySelectorAll('.view-strategies-btn');
+        strategiesBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const entryId = this.getAttribute('data-entry-id');
+                const modalContent = document.getElementById('strategies-modal-content');
+                
+                // Show loading state
+                modalContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Loading strategies...</p>
+                    </div>
+                `;
+                
+                // Show the modal
+                const strategiesModal = new bootstrap.Modal(document.getElementById('strategiesModal'));
+                strategiesModal.show();
+                
+                // Fetch strategies for this entry
+                fetch(`/get_strategies/${entryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.strategies && data.strategies.length > 0) {
+                            let strategiesHtml = '<div class="row">';
+                            
+                            data.strategies.forEach(strategy => {
+                                strategiesHtml += `
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 strategy-card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${strategy.name}</h5>
+                                                <p class="card-text">${strategy.description}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            strategiesHtml += '</div>';
+                            modalContent.innerHTML = strategiesHtml;
+                        } else {
+                            modalContent.innerHTML = '<p class="text-center">No strategies found for this entry.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching strategies:', error);
+                        modalContent.innerHTML = '<p class="text-center text-danger">Error loading strategies. Please try again.</p>';
+                    });
+            });
+        });
+
+        // Feedback form handling
+        const feedbackForm = document.getElementById('feedback-form');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // In a real app, you would send this data to the server
+                const feedbackType = document.getElementById('feedback-type').value;
+                const feedbackContent = document.getElementById('feedback-content').value;
+                
+                // Show success message
+                const feedbackModal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+                feedbackModal.hide();
+                
+                // Create and show a toast
+                const toastContainer = document.createElement('div');
+                toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+                toastContainer.style.zIndex = '11';
+                
+                toastContainer.innerHTML = `
+                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong class="me-auto">Feedback Submitted</strong>
+                            <small>Just now</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            Thank you for your feedback! We appreciate your input.
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(toastContainer);
+                const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+                toast.show();
+                
+                // Clear form
+                feedbackForm.reset();
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}
