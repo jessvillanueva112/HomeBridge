@@ -13,12 +13,26 @@ import numpy as np
 # Download necessary NLTK data if not already available
 try:
     nltk.data.find('tokenizers/punkt')
+except LookupError:
+    print("Downloading NLTK punkt data...")
+    nltk.download('punkt')
+
+try:
     nltk.data.find('corpora/stopwords')
+except LookupError:
+    print("Downloading NLTK stopwords data...")
+    nltk.download('stopwords')
+
+try:
     nltk.data.find('sentiment/vader_lexicon.zip')
 except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
+    print("Downloading NLTK vader_lexicon data...")
     nltk.download('vader_lexicon')
+
+# Force download to ensure we have all necessary NLTK data
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('vader_lexicon', quiet=True)
 
 # Keywords related to homesickness
 HOMESICKNESS_KEYWORDS = [
@@ -96,28 +110,46 @@ def analyze_text(text):
     Returns:
         tuple: (sentiment_score, homesickness_level)
     """
-    # Initialize sentiment analyzer
-    sia = SentimentIntensityAnalyzer()
-    
-    # Get sentiment score
-    sentiment = sia.polarity_scores(text)
-    sentiment_score = sentiment['compound']
-    
-    # Tokenize and clean text
-    tokens = word_tokenize(text.lower())
-    stop_words = set(stopwords.words('english'))
-    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
-    
-    # Calculate homesickness level based on keyword presence
-    homesickness_count = sum(1 for word in filtered_tokens if word in HOMESICKNESS_KEYWORDS)
-    text_length_factor = max(1, len(filtered_tokens) / 10)
-    normalized_count = homesickness_count / text_length_factor
-    
-    # Convert to 1-10 scale
-    homesickness_level = min(10, max(1, round(normalized_count * 3 + (1 - sentiment_score) * 5)))
-    
-    logging.debug(f"Text analysis - Sentiment: {sentiment_score}, Homesickness level: {homesickness_level}")
-    return sentiment_score, homesickness_level
+    try:
+        # Initialize sentiment analyzer
+        sia = SentimentIntensityAnalyzer()
+        
+        # Get sentiment score
+        sentiment = sia.polarity_scores(text)
+        sentiment_score = sentiment['compound']
+        
+        # Tokenize and clean text
+        try:
+            tokens = word_tokenize(text.lower())
+        except Exception as e:
+            logging.error(f"Error with word_tokenize: {str(e)}")
+            # Fallback if word_tokenize fails
+            tokens = text.lower().split()
+        
+        try:
+            stop_words = set(stopwords.words('english'))
+        except Exception as e:
+            logging.error(f"Error loading stopwords: {str(e)}")
+            # Basic English stopwords as fallback
+            stop_words = {'a', 'an', 'the', 'and', 'or', 'but', 'if', 'of', 'in', 'on', 'at', 'to', 'is', 'are', 'was', 'were'}
+        
+        filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+        
+        # Calculate homesickness level based on keyword presence
+        homesickness_count = sum(1 for word in filtered_tokens if word in HOMESICKNESS_KEYWORDS)
+        text_length_factor = max(1, len(filtered_tokens) / 10)
+        normalized_count = homesickness_count / text_length_factor
+        
+        # Convert to 1-10 scale
+        homesickness_level = min(10, max(1, round(normalized_count * 3 + (1 - sentiment_score) * 5)))
+        
+        logging.debug(f"Text analysis - Sentiment: {sentiment_score}, Homesickness level: {homesickness_level}")
+        return sentiment_score, homesickness_level
+        
+    except Exception as e:
+        logging.error(f"Error analyzing text: {str(e)}")
+        # Return default values in case of error
+        return 0.0, 5
 
 def get_resilience_strategies(text, homesickness_level):
     """
@@ -130,22 +162,47 @@ def get_resilience_strategies(text, homesickness_level):
     Returns:
         list: List of strategy dictionaries
     """
-    strategies = load_resilience_strategies()
-    
-    # Determine which category of strategies to use
-    if homesickness_level >= 7:
-        category = "high"
-    elif homesickness_level >= 4:
-        category = "medium"
-    else:
-        category = "low"
-    
-    # Select strategies from the appropriate category
-    selected_strategies = strategies[category]
-    
-    # For a real application, we would use more sophisticated matching
-    # This is a simplified approach for the MVP
-    
-    # Return a subset of strategies (2-3)
-    num_strategies = min(3, len(selected_strategies))
-    return random.sample(selected_strategies, num_strategies)
+    try:
+        strategies = load_resilience_strategies()
+        
+        # Validate homesickness_level is within expected range
+        homesickness_level = min(10, max(1, int(homesickness_level)))
+        
+        # Determine which category of strategies to use
+        if homesickness_level >= 7:
+            category = "high"
+        elif homesickness_level >= 4:
+            category = "medium"
+        else:
+            category = "low"
+        
+        # Select strategies from the appropriate category
+        selected_strategies = strategies[category]
+        
+        # For a real application, we would use more sophisticated matching
+        # This is a simplified approach for the MVP
+        
+        # Return a subset of strategies (2-3)
+        num_strategies = min(3, len(selected_strategies))
+        return random.sample(selected_strategies, num_strategies)
+        
+    except Exception as e:
+        logging.error(f"Error getting resilience strategies: {str(e)}")
+        # Fallback strategies in case of error
+        return [
+            {
+                "title": "Connect with Others",
+                "description": "Spend time with friends or reach out to family back home.",
+                "steps": ["Call a family member", "Meet a friend for coffee", "Join a student club"]
+            },
+            {
+                "title": "Self-Care Practice",
+                "description": "Take time for activities that help you relax and recharge.",
+                "steps": ["Get adequate sleep", "Eat nutritious meals", "Take time for hobbies"]
+            },
+            {
+                "title": "Mindfulness Meditation",
+                "description": "Practice being present and grounded to reduce stress.",
+                "steps": ["Start with 5 minutes daily", "Focus on your breathing", "Use a guided meditation app"]
+            }
+        ]

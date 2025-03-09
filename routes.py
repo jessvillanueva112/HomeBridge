@@ -28,37 +28,87 @@ def index():
 @app.route('/process_voice', methods=['POST'])
 def process_voice():
     try:
+        # Get transcript from request
         data = request.json
         transcript = data.get('transcript', '')
         
         if not transcript:
+            logging.warning("Empty transcript received in process_voice")
             return jsonify({'error': 'No transcript provided'}), 400
         
+        logging.info(f"Processing voice transcript: {transcript[:50]}...")
+        
         # Process the text with ML
-        sentiment_score, homesickness_level = analyze_text(transcript)
-        strategies = get_resilience_strategies(transcript, homesickness_level)
+        try:
+            sentiment_score, homesickness_level = analyze_text(transcript)
+            logging.info(f"Analysis results: sentiment={sentiment_score}, homesickness={homesickness_level}")
+        except Exception as e:
+            logging.error(f"Error in analyze_text: {str(e)}")
+            # Use default values if analysis fails
+            sentiment_score, homesickness_level = 0.0, 5
         
-        # Save the interaction
-        interaction = Interaction(
-            user_id=DEMO_USER_ID,
-            transcript=transcript,
-            sentiment_score=sentiment_score,
-            homesickness_level=homesickness_level,
-            recommended_strategies=json.dumps(strategies)
-        )
-        db.session.add(interaction)
-        db.session.commit()
+        # Get resilience strategies
+        try:
+            strategies = get_resilience_strategies(transcript, homesickness_level)
+            logging.info(f"Retrieved {len(strategies)} strategies")
+        except Exception as e:
+            logging.error(f"Error in get_resilience_strategies: {str(e)}")
+            # Create default strategies if retrieval fails
+            strategies = [
+                {
+                    "title": "Connect with Others",
+                    "description": "Spend time with friends or reach out to family back home.",
+                    "steps": ["Call a family member", "Meet a friend for coffee", "Join a student club"]
+                },
+                {
+                    "title": "Self-Care Practice",
+                    "description": "Take time for activities that help you relax and recharge.",
+                    "steps": ["Get adequate sleep", "Eat nutritious meals", "Take time for hobbies"]
+                }
+            ]
         
+        # Save the interaction to database
+        try:
+            interaction = Interaction(
+                user_id=DEMO_USER_ID,
+                transcript=transcript,
+                sentiment_score=sentiment_score,
+                homesickness_level=homesickness_level,
+                recommended_strategies=json.dumps(strategies)
+            )
+            db.session.add(interaction)
+            db.session.commit()
+            interaction_id = interaction.id
+            logging.info(f"Saved interaction with ID: {interaction_id}")
+        except Exception as e:
+            logging.error(f"Error saving interaction to database: {str(e)}")
+            interaction_id = None
+        
+        # Return response
         return jsonify({
             'success': True,
             'sentiment_score': sentiment_score,
             'homesickness_level': homesickness_level,
             'strategies': strategies,
-            'interaction_id': interaction.id
+            'interaction_id': interaction_id
         })
+        
     except Exception as e:
-        logging.error(f"Error processing voice: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logging.error(f"Unhandled error in process_voice: {str(e)}")
+        # Return a user-friendly error
+        return jsonify({
+            'success': False,
+            'error': "Sorry, we encountered an issue processing your input. Please try again.",
+            'sentiment_score': 0.0,
+            'homesickness_level': 5,
+            'strategies': [
+                {
+                    "title": "Try Again Later",
+                    "description": "We're experiencing technical difficulties. Please try again in a few moments.",
+                    "steps": ["Refresh the page", "Try speaking more clearly", "Use the text input option if voice isn't working"]
+                }
+            ]
+        }), 500
 
 @app.route('/resources')
 def resources():
