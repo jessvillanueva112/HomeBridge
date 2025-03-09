@@ -19,6 +19,69 @@ document.addEventListener('DOMContentLoaded', function() {
     let recognition;
     let recordingStartTime;
     let recordingTimer;
+    let finalTranscript = '';
+    
+    // Check for browser speech API support and show appropriate UI
+    checkBrowserSupport();
+    
+    function checkBrowserSupport() {
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            console.warn("Speech recognition not supported in this browser");
+            
+            if (voiceBtn) {
+                // Create a text input alternative
+                createTextInputAlternative();
+            }
+        }
+    }
+    
+    function createTextInputAlternative() {
+        // Add a warning about browser compatibility
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'alert alert-warning mt-3';
+        warningDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Voice recognition is not supported in your browser. 
+            You can type your thoughts below instead.
+        `;
+        
+        // Create text input alternative
+        const textInputForm = document.createElement('div');
+        textInputForm.className = 'mt-4';
+        textInputForm.innerHTML = `
+            <div class="mb-3">
+                <label for="text-input" class="form-label">Share how you're feeling about being far from home:</label>
+                <textarea id="text-input" class="form-control" rows="4" 
+                    placeholder="Type about your experience as an international student, what you miss about home, or challenges you're facing..."></textarea>
+            </div>
+            <div class="d-grid">
+                <button id="submit-text-btn" class="btn btn-info">
+                    <i class="fas fa-paper-plane me-2"></i>Submit
+                </button>
+            </div>
+        `;
+        
+        // Add to the page
+        const container = voiceBtn.closest('.d-flex');
+        container.style.display = 'none';
+        container.parentNode.appendChild(warningDiv);
+        container.parentNode.appendChild(textInputForm);
+        
+        // Add event listener for the submit button
+        document.getElementById('submit-text-btn').addEventListener('click', function() {
+            const textInput = document.getElementById('text-input');
+            const transcript = textInput.value.trim();
+            
+            if (transcript) {
+                initialPrompt.style.display = 'none';
+                processingIndicator.style.display = 'block';
+                transcriptText.textContent = transcript;
+                processTranscript(transcript);
+            } else {
+                alert('Please enter some text before submitting.');
+            }
+        });
+    }
     
     // Initialize speech recognition
     function initSpeechRecognition() {
@@ -32,9 +95,10 @@ document.addEventListener('DOMContentLoaded', function() {
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             
-            // Handle results
-            let finalTranscript = '';
+            // Reset transcript when starting a new recording
+            finalTranscript = '';
             
+            // Handle results
             recognition.onresult = function(event) {
                 let interimTranscript = '';
                 
@@ -52,24 +116,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 transcriptText.innerHTML = 
                     finalTranscript + 
                     '<span class="text-muted">' + interimTranscript + '</span>';
+                
+                // Log for debugging
+                console.log("Recognition captured:", finalTranscript);
             };
             
             // Handle errors
             recognition.onerror = function(event) {
                 console.error('Speech recognition error:', event.error);
+                
+                if (event.error === 'no-speech') {
+                    alert('No speech was detected. Please try again and speak clearly into your microphone.');
+                } else if (event.error === 'audio-capture') {
+                    alert('No microphone was found or microphone is disabled. Please ensure your microphone is connected and enabled.');
+                } else if (event.error === 'not-allowed') {
+                    alert('Permission to use microphone was denied. Please allow microphone access to use this feature.');
+                } else {
+                    alert('There was an error with the speech recognition: ' + event.error);
+                }
+                
                 stopRecording();
-                alert('There was an error with the speech recognition: ' + event.error);
             };
             
             // Handle end of speech
             recognition.onend = function() {
-                // This will fire when recognition stops
+                console.log("Speech recognition ended");
                 // We don't call stopRecording here because we want to manually control when to stop
             };
             
             return true;
         } else {
-            alert('Sorry, your browser does not support speech recognition. Try using Chrome or Edge.');
+            alert('Sorry, your browser does not support speech recognition. Try using Chrome or Edge, or use the text input option.');
             return false;
         }
     }
@@ -82,8 +159,13 @@ document.addEventListener('DOMContentLoaded', function() {
         initialPrompt.style.display = 'none';
         recordingIndicator.style.display = 'block';
         
+        // Clear previous transcripts
+        transcriptText.innerHTML = '';
+        finalTranscript = '';
+        
         // Start recognition
         try {
+            console.log("Starting speech recognition...");
             recognition.start();
             recordingStartTime = Date.now();
             
@@ -98,9 +180,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Stop recording
     function stopRecording() {
+        console.log("Stopping recording...");
+        
         // Stop recognition
         if (recognition) {
-            recognition.stop();
+            try {
+                recognition.stop();
+                console.log("Recognition stopped");
+            } catch (err) {
+                console.error("Error stopping recognition:", err);
+            }
         }
         
         // Stop recording timer
@@ -112,18 +201,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get transcript text
         const transcript = transcriptText.textContent.trim();
+        console.log("Final transcript:", transcript);
         
         // Process the transcript
         if (transcript) {
             processTranscript(transcript);
         } else {
-            alert('No speech detected. Please try again.');
-            resetUI();
+            // Fallback for demo mode or if no speech was detected
+            const demoText = "I've been feeling really homesick lately. I miss my family and friends back home, and I'm struggling to connect with people here. It's hard to adjust to the new food and culture. Sometimes I feel very lonely and sad.";
+            
+            if (confirm('No speech was detected. Would you like to use a sample text to demonstrate the app?')) {
+                transcriptText.textContent = demoText;
+                processTranscript(demoText);
+            } else {
+                alert('Please try again and speak clearly into your microphone.');
+                resetUI();
+            }
         }
     }
     
     // Process transcript with the backend
     function processTranscript(transcript) {
+        console.log("Processing transcript:", transcript);
+        
         fetch('/process_voice', {
             method: 'POST',
             headers: {
@@ -133,11 +233,13 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok: ' + response.statusText);
             }
             return response.json();
         })
         .then(data => {
+            console.log("Response from server:", data);
+            
             // Show results UI
             processingIndicator.style.display = 'none';
             transcriptionResult.style.display = 'block';
@@ -210,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error processing transcript:', error);
-            alert('There was an error processing your speech. Please try again.');
+            alert('There was an error processing your input. Please try again.');
             resetUI();
         });
     }
@@ -226,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reset UI to initial state
     function resetUI() {
         transcriptText.textContent = '';
+        finalTranscript = '';
         initialPrompt.style.display = 'block';
         recordingIndicator.style.display = 'none';
         processingIndicator.style.display = 'none';
@@ -234,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Event listeners
-    voiceBtn.addEventListener('click', startRecording);
-    stopBtn.addEventListener('click', stopRecording);
-    restartBtn.addEventListener('click', resetUI);
+    if (voiceBtn) voiceBtn.addEventListener('click', startRecording);
+    if (stopBtn) stopBtn.addEventListener('click', stopRecording);
+    if (restartBtn) restartBtn.addEventListener('click', resetUI);
 });
