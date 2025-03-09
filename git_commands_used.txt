@@ -1,0 +1,33 @@
+# Git Commands Used for HomeBridge Project
+
+# 1. Configure SSH for GitHub
+mkdir -p ~/.ssh
+echo "Host github.com
+  IdentityFile ~/.ssh/github_homebridge
+  User git
+  StrictHostKeyChecking no" > ~/.ssh/config
+chmod 600 ~/.ssh/config
+
+# 2. Set Git to use SSH instead of HTTPS
+git remote set-url origin git@github.com:jessvillanueva112/HomeBridge.git
+
+# 3. Verify SSH connection to GitHub
+ssh -T git@github.com
+
+# 4. Check remote configuration
+git remote -v
+
+# 5. Stage all changes
+git add .
+
+# 6. Check status before committing
+git status
+
+# 7. Commit changes with meaningful message
+git commit -m "Update project structure with proper folder organization and NLTK integration"
+
+# 8. Push changes to GitHub
+git push origin main
+
+# These commands help ensure that your project's folder structure and files
+# are properly organized and visible when you open the project in VS Code or Cursor.
