@@ -1,0 +1,107 @@
+[
+  {
+    "title": "UBC Counselling Services",
+    "description": "Free confidential counselling for UBC students experiencing difficulties.",
+    "category": "mental-health",
+    "url": "https://students.ubc.ca/health/counselling-services",
+    "contact_info": "604-822-3811, Brock Hall, Room 1040"
+  },
+  {
+    "title": "UBC Wellness Centre",
+    "description": "Peer support and resources for student wellness and mental health.",
+    "category": "mental-health",
+    "url": "https://students.ubc.ca/health/wellness-centre",
+    "contact_info": "wellness.centre@ubc.ca, UBC Life Building, Room 1400"
+  },
+  {
+    "title": "UBC International Student Association",
+    "description": "Student-run club that organizes events for international students.",
+    "category": "community",
+    "url": "https://www.ubcisa.com",
+    "contact_info": "isa.ubc@gmail.com, @ubcisa"
+  },
+  {
+    "title": "Global Lounge",
+    "description": "A hub for globally-focused clubs and initiatives at UBC.",
+    "category": "community",
+    "url": "https://students.ubc.ca/campus-life/global-lounge",
+    "contact_info": "global.lounge@ubc.ca, Marine Drive Residence, Building 4"
+  },
+  {
+    "title": "International Student Advising",
+    "description": "Advising on immigration, health insurance, work permits, and more.",
+    "category": "academic",
+    "url": "https://students.ubc.ca/international-student-advising",
+    "contact_info": "604-822-5021, Brock Hall, Room 1200"
+  },
+  {
+    "title": "Academic English Support Program",
+    "description": "Free resources to support academic English development.",
+    "category": "academic",
+    "url": "https://students.ubc.ca/academic-success/academic-supports/english-additional-language",
+    "contact_info": "aesp.ubc@ubc.ca"
+  },
+  {
+    "title": "Jump Start Orientation",
+    "description": "UBC's orientation program designed specifically for international students.",
+    "category": "cultural",
+    "url": "https://students.ubc.ca/jumpstart",
+    "contact_info": "jumpstart.info@ubc.ca"
+  },
+  {
+    "title": "Global Engagement Strategy (GES)",
+    "description": "Initiatives to connect international and domestic students.",
+    "category": "cultural",
+    "url": "https://global.ubc.ca",
+    "contact_info": "global.engagement@ubc.ca"
+  },
+  {
+    "title": "International Student Financial Assistance",
+    "description": "Emergency funds for international students facing unexpected financial hardship.",
+    "category": "financial",
+    "url": "https://students.ubc.ca/enrolment/finances/financial-assistance/international-student-financial-assistance",
+    "contact_info": "international.awards@ubc.ca, Enrolment Services, Brock Hall"
+  },
+  {
+    "title": "Work Learn Program",
+    "description": "On-campus employment opportunities for international students.",
+    "category": "financial",
+    "url": "https://students.ubc.ca/career/campus-experiences/work-learn-program",
+    "contact_info": "work.learn@ubc.ca"
+  },
+  {
+    "title": "UBC Food Bank",
+    "description": "Free food and grocery support for students in need.",
+    "category": "financial",
+    "url": "https://www.ams.ubc.ca/student-services/ams-food-bank/",
+    "contact_info": "foodbank@ams.ubc.ca, UBC Life Building, Room 3107"
+  },
+  {
+    "title": "Student Health Services",
+    "description": "Medical care for physical health concerns for UBC students.",
+    "category": "mental-health",
+    "url": "https://students.ubc.ca/health/student-health-service",
+    "contact_info": "604-822-7011, UBC Hospital, Room M334"
+  },
+  {
+    "title": "AMS Speakeasy",
+    "description": "Confidential peer support service for students in distress.",
+    "category": "mental-health",
+    "url": "https://www.ams.ubc.ca/student-services/speakeasy/",
+    "contact_info": "speak@ams.ubc.ca, UBC Nest, Room 3125"
+  },
+  {
+    "title": "International House",
+    "description": "Programming and community space dedicated to international students.",
+    "category": "community",
+    "url": "https://students.ubc.ca/campus-life/international-house",
+    "contact_info": "604-822-5021, 1783 West Mall"
+  },
+  {
+    "title": "Global Engagement Office",
+    "description": "Initiatives to help international and domestic students connect.",
+    "category": "community",
+    "url": "https://students.ubc.ca/about-student-services/global-engagement-office",
+    "contact_info": "global.engagement@ubc.ca, Brock Hall Annex, 1874 East Mall"
+  }
+]

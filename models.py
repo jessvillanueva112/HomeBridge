@@ -8,43 +8,38 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship with user entries
-    entries = db.relationship('Entry', backref='user', lazy=True)
-    
-    def __repr__(self):
-        return f'<User {self.username}>'
+    interactions = db.relationship('Interaction', backref='user', lazy=True)
+    progress_logs = db.relationship('ProgressLog', backref='user', lazy=True)
+    feedback = db.relationship('Feedback', backref='user', lazy=True)
 
-class Entry(db.Model):
+class Interaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    sentiment_score = db.Column(db.Float)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
-    # Relationship with strategies
-    strategies = db.relationship('Strategy', backref='entry', lazy=True)
-    
-    def __repr__(self):
-        return f'<Entry {self.id}>'
+    transcript = db.Column(db.Text, nullable=False)
+    sentiment_score = db.Column(db.Float)
+    homesickness_level = db.Column(db.Integer)  # Scale 1-10
+    recommended_strategies = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Strategy(db.Model):
+class ProgressLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    entry_id = db.Column(db.Integer, db.ForeignKey('entry.id'), nullable=False)
-    
-    def __repr__(self):
-        return f'<Strategy {self.name}>'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    mood_rating = db.Column(db.Integer)  # Scale 1-10
+    gratitude_entry = db.Column(db.Text)
+    activities_completed = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rating = db.Column(db.Integer)  # Scale 1-5
+    comments = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Resource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(100), nullable=False)
-    url = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<Resource {self.title}>'
+    category = db.Column(db.String(64), nullable=False)
+    url = db.Column(db.String(256))
+    contact_info = db.Column(db.String(256))

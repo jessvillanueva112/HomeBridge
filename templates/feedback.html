@@ -1,0 +1,109 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-5 mb-3">Share Your Feedback</h1>
+        <p class="lead">
+            Help us improve HomeBridge by sharing your experience and suggestions.
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card bg-dark shadow">
+            <div class="card-body">
+                <form action="{{ url_for('feedback') }}" method="POST">
+                    <div class="mb-4">
+                        <label class="form-label">How would you rate your experience with HomeBridge?</label>
+                        <div class="rating-container text-center my-3">
+                            <div class="btn-group" role="group" aria-label="Rating">
+                                {% for i in range(1, 6) %}
+                                <input type="radio" class="btn-check" name="rating" id="rating{{ i }}" value="{{ i }}" {% if i == 3 %}checked{% endif %}>
+                                <label class="btn btn-outline-info px-4 rating-label" for="rating{{ i }}">{{ i }}</label>
+                                {% endfor %}
+                            </div>
+                            <div class="rating-labels d-flex justify-content-between mt-1">
+                                <small class="text-muted">Not helpful</small>
+                                <small class="text-muted">Very helpful</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="comments" class="form-label">What did you find most helpful about HomeBridge?</label>
+                        <textarea class="form-control" id="helpful_comments" name="helpful_comments" rows="3" placeholder="Share what worked well for you..."></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="comments" class="form-label">How could we improve HomeBridge?</label>
+                        <textarea class="form-control" id="improvement_comments" name="improvement_comments" rows="3" placeholder="Share your suggestions..."></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="comments" class="form-label">Any other comments or suggestions?</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3" placeholder="Additional thoughts..."></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="share_data" name="share_data" checked>
+                            <label class="form-check-label" for="share_data">
+                                I agree to share my feedback and interaction data with mental health experts to help improve the app.
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-info px-5">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card bg-dark-subtle shadow mt-4">
+            <div class="card-body text-center">
+                <h4 class="mb-3">Thank You for Helping Us Improve</h4>
+                <p>Your feedback is invaluable as we develop better tools to support international students coping with homesickness.</p>
+                <p>This MVP was developed based on research showing that gratitude practices and community connection can significantly improve emotional well-being for students adapting to new environments.</p>
+                <div class="mt-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-info">
+                        <i class="fas fa-home me-2"></i>Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ratingLabels = document.querySelectorAll('.rating-label');
+        
+        ratingLabels.forEach(label => {
+            label.addEventListener('mouseover', function() {
+                const value = parseInt(this.getAttribute('for').replace('rating', ''));
+                
+                ratingLabels.forEach((l, index) => {
+                    if (index + 1 <= value) {
+                        l.classList.add('hover');
+                    } else {
+                        l.classList.remove('hover');
+                    }
+                });
+            });
+            
+            label.addEventListener('mouseout', function() {
+                ratingLabels.forEach(l => {
+                    l.classList.remove('hover');
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

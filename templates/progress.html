@@ -1,0 +1,349 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-5 mb-3">Track Your Progress</h1>
+        <p class="lead">
+            Monitor your emotional well-being and track the effectiveness of resilience strategies.
+        </p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card bg-dark shadow mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Mood & Homesickness Trends</h4>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-info active" id="week-btn">Week</button>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="month-btn">Month</button>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="all-btn">All</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="progressChart" height="250"></canvas>
+            </div>
+        </div>
+        
+        <div class="card bg-dark shadow">
+            <div class="card-header">
+                <h4 class="mb-0">Recent Interaction History</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Homesickness Level</th>
+                                <th>Strategies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if interactions %}
+                                {% for interaction in interactions[:5] %}
+                                <tr>
+                                    <td>{{ interaction.timestamp.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if interaction.homesickness_level %}
+                                            <div class="progress" style="height: 15px;">
+                                                <div class="progress-bar bg-info" role="progressbar" 
+                                                     style="width: {{ interaction.homesickness_level * 10 }}%;" 
+                                                     aria-valuenow="{{ interaction.homesickness_level }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="10">{{ interaction.homesickness_level }}/10</div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Not assessed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if interaction.recommended_strategies %}
+                                            <button class="btn btn-sm btn-outline-info view-strategies-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#strategiesModal" 
+                                                    data-strategies="{{ interaction.recommended_strategies }}">
+                                                View Strategies
+                                            </button>
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No interaction history yet</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-dark shadow mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Track Today's Mood</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('add_progress_log') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="mood_rating" class="form-label">How are you feeling today? (1-10)</label>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2"><i class="far fa-frown text-danger"></i></span>
+                            <input type="range" class="form-range flex-grow-1" min="1" max="10" step="1" id="mood_rating" name="mood_rating" value="5">
+                            <span class="ms-2"><i class="far fa-smile text-success"></i></span>
+                        </div>
+                        <div class="text-center mt-1">
+                            <span id="mood_value">5</span>/10
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="gratitude_entry" class="form-label">One thing I'm grateful for today:</label>
+                        <textarea class="form-control" id="gratitude_entry" name="gratitude_entry" rows="2" placeholder="Write something you appreciate..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="activities_completed" class="form-label">Activities completed from my recommended strategies:</label>
+                        <textarea class="form-control" id="activities_completed" name="activities_completed" rows="2" placeholder="List any strategies you tried..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-save me-2"></i>Save Progress
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card bg-dark shadow">
+            <div class="card-header">
+                <h4 class="mb-0">Progress Stats</h4>
+            </div>
+            <div class="card-body">
+                <div class="stats-item d-flex justify-content-between align-items-center mb-3 p-3 rounded bg-dark-subtle">
+                    <div>
+                        <h5 class="mb-0">Interactions</h5>
+                        <small class="text-muted">Voice conversations</small>
+                    </div>
+                    <span class="badge bg-info rounded-pill fs-5">{{ interactions|length if interactions else 0 }}</span>
+                </div>
+                
+                <div class="stats-item d-flex justify-content-between align-items-center mb-3 p-3 rounded bg-dark-subtle">
+                    <div>
+                        <h5 class="mb-0">Mood Entries</h5>
+                        <small class="text-muted">Daily check-ins</small>
+                    </div>
+                    <span class="badge bg-info rounded-pill fs-5">{{ logs|length if logs else 0 }}</span>
+                </div>
+                
+                <div class="stats-item d-flex justify-content-between align-items-center mb-3 p-3 rounded bg-dark-subtle">
+                    <div>
+                        <h5 class="mb-0">Streak</h5>
+                        <small class="text-muted">Consecutive days</small>
+                    </div>
+                    <span class="badge bg-info rounded-pill fs-5">{{ 0 }}</span>
+                </div>
+                
+                <div class="stats-item d-flex justify-content-between align-items-center p-3 rounded bg-dark-subtle">
+                    <div>
+                        <h5 class="mb-0">Average Mood</h5>
+                        <small class="text-muted">Past week</small>
+                    </div>
+                    <span class="badge bg-info rounded-pill fs-5">
+                        {% if logs|length > 0 %}
+                            {% set total = 0 %}
+                            {% for log in logs[:7] %}
+                                {% set total = total + log.mood_rating %}
+                            {% endfor %}
+                            {{ (total / logs[:7]|length)|round(1) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Strategies Modal -->
+<div class="modal fade" id="strategiesModal" tabindex="-1" aria-labelledby="strategiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="strategiesModalLabel">Recommended Strategies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="strategiesModalBody">
+                <!-- Dynamic content here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize mood slider value display
+        const moodSlider = document.getElementById('mood_rating');
+        const moodValue = document.getElementById('mood_value');
+        
+        if (moodSlider && moodValue) {
+            moodSlider.addEventListener('input', function() {
+                moodValue.textContent = this.value;
+            });
+        }
+        
+        // View strategies modal
+        const strategiesBtns = document.querySelectorAll('.view-strategies-btn');
+        const strategiesModalBody = document.getElementById('strategiesModalBody');
+        
+        strategiesBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const strategiesJson = this.getAttribute('data-strategies');
+                let strategies = [];
+                
+                try {
+                    strategies = JSON.parse(strategiesJson);
+                } catch (e) {
+                    console.error('Error parsing strategies JSON', e);
+                }
+                
+                let modalContent = '';
+                
+                if (strategies.length > 0) {
+                    strategies.forEach(strategy => {
+                        modalContent += `
+                            <div class="strategy-card mb-3">
+                                <h5>${strategy.title}</h5>
+                                <p>${strategy.description}</p>
+                                <h6>Steps:</h6>
+                                <ul class="list-unstyled">
+                                    ${strategy.steps.map(step => `
+                                        <li class="step-item">
+                                            <i class="fas fa-chevron-right text-info"></i>
+                                            <span>${step}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    });
+                } else {
+                    modalContent = '<p class="text-muted">No strategies were recommended.</p>';
+                }
+                
+                strategiesModalBody.innerHTML = modalContent;
+            });
+        });
+        
+        // Progress chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        
+        // Get data passed from the backend
+        const dates = {{ dates|safe }};
+        const moodRatings = {{ mood_ratings|safe }};
+        const homesicknessLevels = {{ homesickness_levels|safe }};
+        
+        // Create the chart
+        const progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Mood Rating',
+                        data: moodRatings,
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Homesickness Level',
+                        data: homesicknessLevels,
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: 'Rating (1-10)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Time range filters
+        const weekBtn = document.getElementById('week-btn');
+        const monthBtn = document.getElementById('month-btn');
+        const allBtn = document.getElementById('all-btn');
+        
+        if (weekBtn && monthBtn && allBtn) {
+            weekBtn.addEventListener('click', function() {
+                updateChartRange(7);
+                setActiveButton(this);
+            });
+            
+            monthBtn.addEventListener('click', function() {
+                updateChartRange(30);
+                setActiveButton(this);
+            });
+            
+            allBtn.addEventListener('click', function() {
+                updateChartRange(dates.length);
+                setActiveButton(this);
+            });
+        }
+        
+        function updateChartRange(days) {
+            progressChart.data.labels = dates.slice(-days);
+            progressChart.data.datasets[0].data = moodRatings.slice(-days);
+            progressChart.data.datasets[1].data = homesicknessLevels.slice(-days);
+            progressChart.update();
+        }
+        
+        function setActiveButton(activeBtn) {
+            [weekBtn, monthBtn, allBtn].forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeBtn.classList.add('active');
+        }
+        
+        // Default to week view
+        if (dates.length > 0) {
+            updateChartRange(Math.min(7, dates.length));
+        }
+    });
+</script>
+{% endblock %}

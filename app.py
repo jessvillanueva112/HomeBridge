@@ -5,33 +5,30 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
-# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
-
-# Create the app
+# create the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET")
 
-# Configure the SQLite database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///homesickness.db"
+# configure the database, relative to the app instance folder
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///homesickness.db")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Initialize the app with the extension
+# initialize the app with the extension, flask-sqlalchemy >= 3.0.x
 db.init_app(app)
 
 with app.app_context():
-    # Import models and routes
-    import models
-    import routes
+    # Make sure to import the models here or their tables won't be created
+    import models  # noqa: F401
 
-    # Create all database tables
     db.create_all()
+
+# Import routes after app and db are initialized
+from routes import *

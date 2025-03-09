@@ -1,203 +1,197 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 
-{% block title %}HomeBridge - Support for International UBC Students{% endblock %}
+{% block head %}
+<style>
+    .voice-container {
+        min-height: 400px;
+    }
+    
+    .voice-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .voice-btn i {
+        font-size: 2rem;
+    }
+    
+    .voice-btn.recording {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(var(--bs-info-rgb), 0.7);
+        }
+        
+        70% {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 10px rgba(var(--bs-info-rgb), 0);
+        }
+        
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(var(--bs-info-rgb), 0);
+        }
+    }
+    
+    .strategy-card {
+        transition: all 0.3s ease;
+    }
+    
+    .strategy-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .step-item {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .step-item i {
+        margin-right: 0.5rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-center text-white">
-    <div class="overlay"></div>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4">Feel at Home, Even Far From Home</h1>
-                <p class="lead mb-4">An AI-powered companion for international UBC students experiencing homesickness. Share your thoughts, get personalized resilience strategies, and connect with resources.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="#voice-section" class="btn btn-primary btn-lg px-4 py-2">
-                        <i class="fas fa-microphone me-2"></i>Talk to HomeBridge
-                    </a>
-                    <a href="/resources" class="btn btn-outline-light btn-lg px-4 py-2">
-                        <i class="fas fa-book me-2"></i>Browse Resources
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-5 mb-3">Welcome to HomeBridge</h1>
+        <p class="lead">
+            A voice-interactive support system for UBC international students experiencing homesickness.
+        </p>
+        <p>
+            Talk to our virtual assistant about how you're feeling, and receive personalized resilience strategies.
+        </p>
     </div>
-</section>
+</div>
 
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">How HomeBridge Helps You</h2>
-            <p class="text-muted">Our unique approach combines voice interaction, machine learning, and proven psychological techniques</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon">
-                            <i class="fas fa-comment-dots"></i>
-                        </div>
-                        <h4>Voice Your Feelings</h4>
-                        <p class="text-muted">Share your experiences and feelings through natural conversation with our voice-enabled interface.</p>
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="card bg-dark shadow">
+            <div class="card-body voice-container">
+                <div id="initial-prompt" class="text-center py-5">
+                    <h2 class="mb-4">How are you feeling today?</h2>
+                    <p class="mb-4">Tap the microphone button and speak naturally about your experience as an international student at UBC.</p>
+                    <div class="d-flex justify-content-center">
+                        <button id="voice-btn" class="voice-btn btn btn-info">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                     </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h4>AI-Powered Analysis</h4>
-                        <p class="text-muted">Our machine learning system identifies patterns in your experiences and recommends personalized coping strategies.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 feature-card border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon">
-                            <i class="fas fa-hands-holding-heart"></i>
-                        </div>
-                        <h4>Research-Backed Techniques</h4>
-                        <p class="text-muted">Access evidence-based resilience strategies that have been shown to reduce homesickness and improve wellbeing.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Voice Interface Section -->
-<section id="voice-section" class="py-5 bg-body-tertiary">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-4">
-                    <h2 class="fw-bold">Talk to HomeBridge</h2>
-                    <p class="text-muted">Share how you're feeling about being away from home, and we'll help you develop resilience</p>
+                    <p class="mt-3 text-muted"><small>Your voice will be processed to provide personalized support strategies.</small></p>
                 </div>
                 
-                <div class="card recording-interface shadow-sm" id="voice-container">
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <h5><span id="recording-status">Ready to listen</span> <span id="recording-indicator"></span></h5>
+                <div id="recording-indicator" class="text-center py-5" style="display: none;">
+                    <h2 class="mb-4">I'm listening...</h2>
+                    <p class="mb-4">Share how you're feeling, what you miss about home, or challenges you're facing.</p>
+                    <div class="d-flex justify-content-center">
+                        <button id="stop-btn" class="voice-btn btn btn-danger recording">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <div class="spinner-grow text-info" role="status">
+                            <span class="visually-hidden">Recording...</span>
                         </div>
-                        
-                        <div class="d-flex justify-content-center gap-3 mb-4">
-                            <button id="start-recording-btn" class="btn btn-primary">
-                                <i class="fas fa-microphone me-2"></i>Start Recording
-                            </button>
-                            <button id="stop-recording-btn" class="btn btn-danger d-none">
-                                <i class="fas fa-stop-circle me-2"></i>Stop Recording
-                            </button>
-                            <button id="process-recording-btn" class="btn btn-success d-none">
-                                <i class="fas fa-check-circle me-2"></i>Process Recording
-                            </button>
+                        <div class="text-muted mt-2" id="recording-time">00:00</div>
+                    </div>
+                </div>
+                
+                <div id="processing-indicator" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Processing...</span>
+                    </div>
+                    <h4 class="mt-3">Processing your response...</h4>
+                    <p class="text-muted">Analyzing your experience to find helpful strategies.</p>
+                </div>
+                
+                <div id="transcription-result" style="display: none;">
+                    <h4 class="mb-3">Here's what I heard:</h4>
+                    <div class="card mb-4">
+                        <div class="card-body bg-secondary-subtle">
+                            <p id="transcript-text" class="mb-0 fst-italic"></p>
                         </div>
-                        
-                        <div class="mb-3">
-                            <div class="card bg-dark">
-                                <div class="card-body">
-                                    <p class="mb-2 text-muted small">Your spoken words will appear here:</p>
-                                    <div id="transcription-text" class="fw-bold"></div>
-                                    <div id="interim-text" class="text-muted"></div>
+                    </div>
+                    
+                    <div id="analysis-section">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Sentiment Analysis</h5>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div id="sentiment-bar" class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
+                                        </div>
+                                        <p id="sentiment-description" class="card-text"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Homesickness Level</h5>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div id="homesickness-bar" class="progress-bar bg-info" role="progressbar" style="width: 50%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="10">5/10</div>
+                                        </div>
+                                        <p id="homesickness-description" class="card-text"></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="text-center d-none" id="processing-spinner">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p class="mt-2">Analyzing your input...</p>
-                        </div>
+                    </div>
+                    
+                    <h4 class="mb-3">Personalized Resilience Strategies</h4>
+                    <div id="strategies-container" class="row"></div>
+                    
+                    <div class="text-center mt-4">
+                        <button id="restart-btn" class="btn btn-primary">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </button>
                     </div>
                 </div>
-                
-                <!-- Results Container -->
-                <div id="results-container" class="mt-4 d-none">
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-body">
-                            <h3 class="card-title">Your Personalized Resilience Strategies</h3>
-                            <div id="analysis-data" class="mb-3 text-info"></div>
-                            <div id="strategies-container">
-                                <!-- Strategies will be inserted here via JavaScript -->
-                            </div>
-                            <div class="text-center mt-4">
-                                <a href="/resources" id="view-resources-btn" class="btn btn-outline-primary d-none">
-                                    <i class="fas fa-external-link-alt me-2"></i>View Related Resources
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Gratitude Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="gratitude-card text-center">
-                    <h3>Daily Gratitude Practice</h3>
-                    <p class="mb-4">Studies show that practicing gratitude can increase dorsolateral prefrontal activity by 29%, creating cognitive buffers against emotional overwhelm.</p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gratitudeModal">
-                        <i class="fas fa-heart me-2"></i>Record Today's Gratitude
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Stats Section -->
-<section class="py-5 bg-dark text-white">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h2 class="display-4 fw-bold text-info">29%</h2>
-                <p>Increase in prefrontal activity through gratitude practices</p>
-            </div>
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h2 class="display-4 fw-bold text-info">42%</h2>
-                <p>Reduction in reported loneliness with proper support</p>
-            </div>
-            <div class="col-md-4">
-                <h2 class="display-4 fw-bold text-info">15+</h2>
-                <p>Curated resilience strategies for international students</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Gratitude Modal -->
-<div class="modal fade" id="gratitudeModal" tabindex="-1" aria-labelledby="gratitudeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="gratitudeModalLabel">Record Your Gratitude</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="gratitude-form">
-                    <div class="mb-3">
-                        <label for="gratitude-input" class="form-label">What are you grateful for today?</label>
-                        <textarea class="form-control" id="gratitude-input" rows="3" required></textarea>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card bg-dark-subtle shadow h-100">
+            <div class="card-body">
+                <h3 class="card-title">About HomeBridge</h3>
+                <p>HomeBridge was developed to help UBC's international students navigate the emotional challenges of studying far from home.</p>
+                <p>Our voice-interactive system uses machine learning to analyze your experiences and provide personalized resilience strategies based on proven psychological techniques.</p>
+                <p>This is an MVP designed with input from international students and mental health professionals - your feedback helps us improve!</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-info-subtle shadow h-100">
+            <div class="card-body">
+                <h3 class="card-title">Quick Tips</h3>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Speak naturally about your feelings</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Mention specific challenges you're facing</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Try the recommended strategies for at least a week</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Track your progress in the Progress section</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Explore UBC resources for additional support</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Share feedback to help us improve</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/voice_interaction.js') }}"></script>
 {% endblock %}

@@ -3,24 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}HomeBridge - Support for International UBC Students{% endblock %}</title>
+    <title>HomeBridge - UBC International Student Support</title>
     
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
-    {% block extra_css %}{% endblock %}
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
                 <i class="fas fa-home me-2"></i>HomeBridge
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,88 +31,62 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a>
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-microphone-alt me-1"></i> Voice Bot
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="/dashboard">Dashboard</a>
+                        <a class="nav-link {% if request.path == '/resources' %}active{% endif %}" href="{{ url_for('resources') }}">
+                            <i class="fas fa-book me-1"></i> Resources
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/resources' %}active{% endif %}" href="/resources">Resources</a>
+                        <a class="nav-link {% if request.path == '/progress' %}active{% endif %}" href="{{ url_for('progress') }}">
+                            <i class="fas fa-chart-line me-1"></i> Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/feedback' %}active{% endif %}" href="{{ url_for('feedback') }}">
+                            <i class="fas fa-comment me-1"></i> Feedback
+                        </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main>
+    <div class="container mb-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         {% block content %}{% endblock %}
-    </main>
+    </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-home me-2"></i>HomeBridge</h5>
-                    <p>Helping international UBC students cope with homesickness through ML-powered resilience strategies and resources.</p>
-                </div>
-                <div class="col-md-3">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-light">Home</a></li>
-                        <li><a href="/dashboard" class="text-light">Dashboard</a></li>
-                        <li><a href="/resources" class="text-light">Resources</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>UBC Resources</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="https://students.ubc.ca/international-student-guide" class="text-light" target="_blank">International Student Guide</a></li>
-                        <li><a href="https://students.ubc.ca/health/counselling-services" class="text-light" target="_blank">Counseling Services</a></li>
-                        <li><a href="https://students.ubc.ca/about-student-services/international-student-advising" class="text-light" target="_blank">International Student Advising</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0">&copy; 2023 HomeBridge | Created for UBC International Students</p>
-                </div>
-            </div>
+    <footer class="py-4 bg-dark mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">
+                HomeBridge - UBC International Student Support &copy; 2023
+            </p>
+            <p class="text-muted mb-0">
+                <small>A voice-interactive web application to help with homesickness</small>
+            </p>
         </div>
     </footer>
 
-    <!-- Error Alert -->
-    <div id="error-alert" class="alert alert-danger alert-dismissible fade show d-none position-fixed bottom-0 end-0 m-3" role="alert">
-        <strong>Error:</strong> <span id="error-message">Something went wrong</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <!-- Gratitude Toast -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="gratitude-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <i class="fas fa-heart text-danger me-2"></i>
-                <strong class="me-auto">Gratitude Practice</strong>
-                <small>Just now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                You've recorded your gratitude practice for today. Great job building resilience!
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap Bundle with Popper -->
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Voice Interaction JS -->
-    <script src="{{ url_for('static', filename='js/voice_interaction.js') }}"></script>
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    
-    {% block extra_js %}{% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

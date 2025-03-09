@@ -1,0 +1,83 @@
+{
+  "high": [
+    {
+      "title": "Connect with UBC International Student Community",
+      "description": "Attend events organized by the UBC International Student Association to meet others experiencing similar challenges.",
+      "steps": ["Find upcoming events on the UBC website", "Attend at least one event this week", "Introduce yourself to at least three people"]
+    },
+    {
+      "title": "Virtual Family Connection",
+      "description": "Schedule regular video calls with family and friends from home.",
+      "steps": ["Set a weekly call time that works across time zones", "Share your experiences and listen to theirs", "Create a shared digital photo album"]
+    },
+    {
+      "title": "Cultural Comfort Food",
+      "description": "Find restaurants or learn to cook familiar dishes from your home country.",
+      "steps": ["Research local restaurants serving your cuisine", "Learn one recipe from home each week", "Host a small cultural dinner with new friends"]
+    },
+    {
+      "title": "Join a Cultural Student Association",
+      "description": "UBC has many cultural and regional student associations where you can connect with students from your background.",
+      "steps": ["Check UBC Clubs Directory for your cultural association", "Attend their next meeting", "Volunteer for an upcoming cultural event"]
+    },
+    {
+      "title": "Talk to UBC International Student Advisor",
+      "description": "UBC has dedicated advisors to help international students navigate homesickness and adjustment.",
+      "steps": ["Schedule an appointment with International Student Services", "Prepare specific questions about your challenges", "Follow their personalized suggestions"]
+    }
+  ],
+  "medium": [
+    {
+      "title": "Gratitude Journaling",
+      "description": "Write down three things you appreciate about your new environment daily.",
+      "steps": ["Get a dedicated notebook", "Set a daily reminder", "Reflect on positive aspects of your day before sleep"]
+    },
+    {
+      "title": "Explore Vancouver",
+      "description": "Discover beautiful locations around Vancouver to create new positive memories.",
+      "steps": ["Visit Stanley Park", "Explore Granville Island", "Take photos of places that make you happy"]
+    },
+    {
+      "title": "UBC Campus Resources",
+      "description": "Utilize UBC's counseling and wellness services designed for international students.",
+      "steps": ["Book an initial consultation with UBC Counseling", "Attend a wellness workshop", "Join a peer support group"]
+    },
+    {
+      "title": "Regular Exercise Routine",
+      "description": "Physical activity can significantly improve mood and reduce homesickness feelings.",
+      "steps": ["Visit the UBC Aquatic Centre or gym", "Join a recreational sports team", "Try a new outdoor activity in Vancouver"]
+    },
+    {
+      "title": "Mindfulness Meditation",
+      "description": "Practice being present to reduce anxiety about being far from home.",
+      "steps": ["Download a mindfulness app like Headspace", "Start with 5-minute daily sessions", "Attend a meditation class at UBC Wellness Centre"]
+    }
+  ],
+  "low": [
+    {
+      "title": "Create a Comfort Corner",
+      "description": "Design a space in your room with familiar items from home.",
+      "steps": ["Add photos, souvenirs or decorations from home", "Include sensory elements like familiar scents", "Make it your go-to relaxation spot"]
+    },
+    {
+      "title": "Mindfulness Practice",
+      "description": "Learn basic mindfulness techniques to stay grounded and present.",
+      "steps": ["Try a 5-minute guided meditation daily", "Practice deep breathing when feeling overwhelmed", "Use the UBC Wellness Centre resources"]
+    },
+    {
+      "title": "Join a Club or Activity",
+      "description": "Find a club or activity that connects to your interests or culture.",
+      "steps": ["Browse UBC's club directory", "Attend an introductory meeting", "Participate regularly in one group activity"]
+    },
+    {
+      "title": "Local Buddy System",
+      "description": "Connect with a domestic student through UBC's buddy programs.",
+      "steps": ["Apply for the UBC Peer Programs", "Schedule regular meetups", "Ask them to show you their favorite Vancouver spots"]
+    },
+    {
+      "title": "Nature Walks",
+      "description": "Vancouver's natural beauty can be restorative and calming.",
+      "steps": ["Visit Pacific Spirit Regional Park near UBC", "Walk along the seawall at sunset", "Take photos to share with family"]
+    }
+  ]
+}

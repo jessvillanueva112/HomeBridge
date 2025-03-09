@@ -1,0 +1,261 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-5 mb-3">UBC Resources</h1>
+        <p class="lead">
+            Discover resources at UBC and in Vancouver to help international students thrive.
+        </p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark shadow">
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="resource-search" class="form-control" placeholder="Search resources...">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="btn-group d-flex flex-wrap" role="group" aria-label="Resource categories">
+                        <button type="button" class="btn btn-outline-info active filter-btn" data-filter="all">All</button>
+                        <button type="button" class="btn btn-outline-info filter-btn" data-filter="mental-health">Mental Health</button>
+                        <button type="button" class="btn btn-outline-info filter-btn" data-filter="community">Community</button>
+                        <button type="button" class="btn btn-outline-info filter-btn" data-filter="academic">Academic</button>
+                        <button type="button" class="btn btn-outline-info filter-btn" data-filter="cultural">Cultural</button>
+                        <button type="button" class="btn btn-outline-info filter-btn" data-filter="financial">Financial</button>
+                    </div>
+                </div>
+                
+                <div id="resources-container">
+                    <!-- Campus Support Resources -->
+                    <div class="resource-group mb-5" data-category="mental-health">
+                        <h3 class="border-bottom pb-2 mb-4"><i class="fas fa-heart me-2 text-danger"></i>Mental Health Support</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">UBC Counselling Services</h5>
+                                        <p class="card-text">Free confidential counselling for UBC students experiencing difficulties.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-map-marker-alt me-2 text-info"></i>Brock Hall, Room 1040</li>
+                                            <li><i class="fas fa-phone me-2 text-info"></i>604-822-3811</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/health/counselling-services" target="_blank">students.ubc.ca/health/counselling-services</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">UBC Wellness Centre</h5>
+                                        <p class="card-text">Peer support and resources for student wellness and mental health.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-map-marker-alt me-2 text-info"></i>UBC Life Building, Room 1400</li>
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>wellness.centre@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/health/wellness-centre" target="_blank">students.ubc.ca/health/wellness-centre</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Community Connection Resources -->
+                    <div class="resource-group mb-5" data-category="community">
+                        <h3 class="border-bottom pb-2 mb-4"><i class="fas fa-users me-2 text-success"></i>Community Connections</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">UBC International Student Association</h5>
+                                        <p class="card-text">Student-run club that organizes events for international students.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>isa.ubc@gmail.com</li>
+                                            <li><i class="fab fa-instagram me-2 text-info"></i>@ubcisa</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://www.ubcisa.com" target="_blank">www.ubcisa.com</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Global Lounge</h5>
+                                        <p class="card-text">A hub for globally-focused clubs and initiatives at UBC.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-map-marker-alt me-2 text-info"></i>Marine Drive Residence, Building 4</li>
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>global.lounge@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/campus-life/global-lounge" target="_blank">students.ubc.ca/campus-life/global-lounge</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Academic Resources -->
+                    <div class="resource-group mb-5" data-category="academic">
+                        <h3 class="border-bottom pb-2 mb-4"><i class="fas fa-graduation-cap me-2 text-warning"></i>Academic Support</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">International Student Advising</h5>
+                                        <p class="card-text">Advising on immigration, health insurance, work permits, and more.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-map-marker-alt me-2 text-info"></i>Brock Hall, Room 1200</li>
+                                            <li><i class="fas fa-phone me-2 text-info"></i>604-822-5021</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/international-student-advising" target="_blank">students.ubc.ca/international-student-advising</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Academic English Support Program</h5>
+                                        <p class="card-text">Free resources to support academic English development.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>aesp.ubc@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/academic-success/academic-supports/english-additional-language" target="_blank">students.ubc.ca/academic-success/academic-supports/english-additional-language</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cultural Resources -->
+                    <div class="resource-group mb-5" data-category="cultural">
+                        <h3 class="border-bottom pb-2 mb-4"><i class="fas fa-globe-americas me-2 text-primary"></i>Cultural Integration</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Jump Start Orientation</h5>
+                                        <p class="card-text">UBC's orientation program designed specifically for international students.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>jumpstart.info@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/jumpstart" target="_blank">students.ubc.ca/jumpstart</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Global Engagement Strategy (GES)</h5>
+                                        <p class="card-text">Initiatives to connect international and domestic students.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>global.engagement@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://global.ubc.ca" target="_blank">global.ubc.ca</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Financial Resources -->
+                    <div class="resource-group mb-5" data-category="financial">
+                        <h3 class="border-bottom pb-2 mb-4"><i class="fas fa-dollar-sign me-2 text-success"></i>Financial Support</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">International Student Financial Assistance</h5>
+                                        <p class="card-text">Emergency funds for international students facing unexpected financial hardship.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-map-marker-alt me-2 text-info"></i>Enrolment Services, Brock Hall</li>
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>international.awards@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/enrolment/finances/financial-assistance/international-student-financial-assistance" target="_blank">students.ubc.ca/international-financial-assistance</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 resource-card">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Work Learn Program</h5>
+                                        <p class="card-text">On-campus employment opportunities for international students.</p>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-envelope me-2 text-info"></i>work.learn@ubc.ca</li>
+                                            <li><i class="fas fa-globe me-2 text-info"></i><a href="https://students.ubc.ca/career/campus-experiences/work-learn-program" target="_blank">students.ubc.ca/work-learn-program</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Resource filtering
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const resourceGroups = document.querySelectorAll('.resource-group');
+    const searchInput = document.getElementById('resource-search');
+    const resourceCards = document.querySelectorAll('.resource-card');
+    
+    // Filter by category
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            
+            // Show/hide resource groups based on filter
+            resourceGroups.forEach(group => {
+                if (filter === 'all' || group.getAttribute('data-category') === filter) {
+                    group.style.display = 'block';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        resourceCards.forEach(card => {
+            const cardText = card.textContent.toLowerCase();
+            
+            if (cardText.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Show/hide groups based on whether they have any visible cards
+        resourceGroups.forEach(group => {
+            const visibleCards = group.querySelectorAll('.resource-card[style="display: block"]');
+            
+            if (visibleCards.length > 0) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
