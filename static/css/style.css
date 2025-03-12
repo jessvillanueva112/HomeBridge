@@ -7,6 +7,8 @@
 
 body {
     transition: opacity 0.5s ease;
+    background-color: #212529; /* Revert to dark background */
+    color: #f8f9fa; /* Light text color for readability */
 }
 
 .fade-in {
@@ -28,10 +30,13 @@ body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-speed) ease;
+    background-color: #007bff; /* Blue background for buttons */
+    color: white; /* White text for contrast */
 }
 
 .voice-btn:hover {
     transform: scale(1.1);
+    background-color: #0056b3; /* Darker blue on hover for better contrast */
 }
 
 .voice-btn i {
@@ -159,4 +164,56 @@ body {
     .voice-btn i {
         font-size: 1.5rem;
     }
+}
+
+.heard-section {
+    background-color: #212529 !important;
+    color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: none;
+    opacity: 1;
+}
+
+.quick-tips {
+    background-color: #212529 !important;
+    color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: none;
+    opacity: 1;
+}
+
+.user-response {
+    background-color: #212529 !important;
+    color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: none;
+}
+
+.input-background {
+    background-color: #212529 !important;
+    color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: none;
+}
+
+/* Add styles for the text input fields to ensure they're visible */
+input[type="text"], 
+textarea {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+    border: 1px solid #495057;
+}
+
+/* Ensure placeholder text is visible */
+::placeholder {
+    color: #adb5bd !important;
+    opacity: 1;
 }
