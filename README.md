@@ -26,63 +26,114 @@ HomeBridge uses natural language processing, machine learning, and Google's Gemi
 - **NLP/ML**: NLTK, scikit-learn, Google Gemini AI
 - **Data Visualization**: Plotly, Matplotlib, Seaborn
 
+## Prerequisites
+
+Before running HomeBridge, ensure you have:
+1. Python 3.8 or higher installed
+2. A Google Cloud account for the Gemini API key
+3. Git installed (for cloning the repository)
+
 ## Setup and Installation
 
-1. Clone the repository
-2. Install dependencies:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/HomeBridge.git
+   cd HomeBridge
    ```
+
+2. Create and activate a virtual environment (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
-3. Set environment variables:
-   - `DATABASE_URL` (optional, defaults to SQLite)
-   - `SESSION_SECRET` (required for secure sessions)
-   - `GEMINI_API_KEY` (required for Gemini AI integration)
+
+4. Set up environment variables by creating a `.env` file:
+   ```
+   SESSION_SECRET=your_session_secret_here
+   GEMINI_API_KEY=your_gemini_api_key_here  # Get this from Google AI Studio
+   ```
+
+5. Install NLTK resources:
+   ```bash
+   python -c "import nltk; nltk.download('punkt')"
+   ```
 
 ## Running the Application
 
-There are multiple ways to run the HomeBridge application:
+There are multiple ways to run HomeBridge:
 
-### Option 1: Using Python Directly (Flask Interface)
+### Option 1: Using Flask (Recommended for Development)
+```bash
+FLASK_APP=app.py flask run --port=5003
 ```
+The application will be available at http://127.0.0.1:5003
+
+Note: If port 5003 is in use, you can try other ports (e.g., 5004, 5005).
+
+### Option 2: Using Python Directly
+```bash
 python main.py
 ```
-This runs the Flask application in development mode with debug features enabled.
 
-### Option 2: Using Gunicorn (Recommended for Production)
+### Option 3: Using Gunicorn (Recommended for Production)
+```bash
+gunicorn --bind 0.0.0.0:5003 --workers 4 app:app
 ```
-gunicorn --bind 0.0.0.0:8080 --reuse-port --reload main:app
-```
-This starts the Flask server with automatic reloading when code changes are detected.
 
-### Option 3: Using Streamlit (Interactive Dashboard)
-```
+### Option 4: Using Streamlit (Interactive Dashboard)
+```bash
 streamlit run streamlit_app.py
 ```
-This starts the Streamlit interactive dashboard, which provides enhanced visualization and analytics features.
+The Streamlit dashboard will be available at http://localhost:8501
 
-### Option 4: One-line Installation and Run
-```
-pip install -r requirements.txt && gunicorn --bind 0.0.0.0:8080 --reuse-port --reload main:app
-```
-This installs all dependencies and starts the server in one command.
+## Troubleshooting
 
-The Flask application will be available at http://0.0.0.0:8080 after starting with methods 1, 2, or 4.
-The Streamlit dashboard will be available at http://0.0.0.0:8501 when using method 3.
+1. **Port Already in Use**: If you see "Address already in use", try:
+   - Using a different port (e.g., 5003, 5004, 5005)
+   - On macOS, check System Settings > General > AirDrop & Handoff for AirPlay settings
+
+2. **NLTK Resources**: If you see NLTK-related errors:
+   ```bash
+   python -c "import nltk; nltk.download('punkt')"
+   ```
+
+3. **Missing Dependencies**: If you encounter ModuleNotFoundError:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Gemini AI Integration
 
-HomeBridge integrates Google's Gemini AI to provide enhanced natural language understanding and personalized support:
+HomeBridge uses Google's Gemini AI for enhanced natural language understanding. To enable this:
 
-1. **Advanced Sentiment Analysis**: Gemini AI analyzes the emotional content of student interactions with greater accuracy
-2. **Personalized Resilience Strategies**: Strategies are tailored to individual needs using Gemini's understanding of context
-3. **Psychological Insights**: The system leverages research on neuroplasticity and emotional processing
+1. Visit [Google AI Studio](https://makersuite.google.com/)
+2. Create or select a project
+3. Generate an API key
+4. Add the key to your `.env` file:
+   ```
+   GEMINI_API_KEY=your_key_here
+   ```
 
-To enable Gemini AI features, you must set the `GEMINI_API_KEY` environment variable. You can obtain a key from the [Google AI Studio](https://makersuite.google.com/).
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Research-Backed Approach
 
 HomeBridge is built on scientific research:
-
-- **Neuroplasticity Potential**: Gratitude journaling increases dorsolateral prefrontal activity by 29%, creating cognitive buffers against emotional overwhelm (BMC Psychology)
-- **AI Efficacy**: NLP systems trained on grief-related narratives can detect high-risk linguistic markers months before clinical diagnosis (MDPI)
-- **Addressing Loneliness**: Designed to counter the 42% increase in reported loneliness among bereaved individuals since 2020
+- **Neuroplasticity Potential**: Gratitude journaling increases dorsolateral prefrontal activity by 29%
+- **AI Efficacy**: NLP systems trained on grief-related narratives can detect high-risk linguistic markers
+- **Addressing Loneliness**: Designed to counter the 42% increase in reported loneliness among bereaved individuals
