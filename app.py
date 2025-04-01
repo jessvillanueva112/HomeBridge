@@ -38,8 +38,24 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 def init_db():
     try:
         with app.app_context():
+            # Import models here to ensure they're registered
+            from models import User, JournalEntry, MoodEntry, GratitudeEntry
+            # Create all tables
             db.create_all()
             logging.info("Database initialized successfully")
+            
+            # Create demo user if it doesn't exist
+            from routes import DEMO_USER_ID
+            if not User.query.get(DEMO_USER_ID):
+                demo_user = User(
+                    id=DEMO_USER_ID,
+                    username="demo_user",
+                    email="demo@example.com",
+                    password_hash="demo_password_hash"  # This is just for demo purposes
+                )
+                db.session.add(demo_user)
+                db.session.commit()
+                logging.info("Demo user created successfully")
     except Exception as e:
         logging.error(f"Error initializing database: {e}")
         raise
