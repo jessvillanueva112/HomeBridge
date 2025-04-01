@@ -52,10 +52,16 @@ Before running HomeBridge, ensure you have:
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables by creating a `.env` file:
-   ```
-   SESSION_SECRET=your_session_secret_here
-   GEMINI_API_KEY=your_gemini_api_key_here  # Get this from Google AI Studio
+4. Set up environment variables:
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env with your configuration
+   # You'll need to:
+   # 1. Generate a secure SESSION_SECRET (you can use: python -c "import secrets; print(secrets.token_hex(32))")
+   # 2. Get a GEMINI_API_KEY from Google AI Studio (https://makersuite.google.com/)
+   # 3. Update other variables as needed
    ```
 
 5. Install NLTK resources:
