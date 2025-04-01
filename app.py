@@ -42,3 +42,8 @@ with app.app_context():
 
 # Import routes after app and db are initialized
 from routes import *
+
+# Add health check endpoint for Render
+@app.route('/health')
+def health_check():
+    return {'status': 'healthy'}, 200
