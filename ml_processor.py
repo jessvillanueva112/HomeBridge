@@ -10,29 +10,21 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-# Download necessary NLTK data if not already available
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    print("Downloading NLTK punkt data...")
-    nltk.download('punkt')
+# Download necessary NLTK data
+def download_nltk_data():
+    try:
+        nltk.data.find('tokenizers/punkt')
+        nltk.data.find('corpora/stopwords')
+        nltk.data.find('sentiment/vader_lexicon.zip')
+    except LookupError:
+        logging.info("Downloading required NLTK data...")
+        nltk.download('punkt', quiet=True)
+        nltk.download('stopwords', quiet=True)
+        nltk.download('vader_lexicon', quiet=True)
+        logging.info("NLTK data downloaded successfully")
 
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    print("Downloading NLTK stopwords data...")
-    nltk.download('stopwords')
-
-try:
-    nltk.data.find('sentiment/vader_lexicon.zip')
-except LookupError:
-    print("Downloading NLTK vader_lexicon data...")
-    nltk.download('vader_lexicon')
-
-# Force download to ensure we have all necessary NLTK data
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('vader_lexicon', quiet=True)
+# Download NLTK data on import
+download_nltk_data()
 
 # Keywords related to homesickness
 HOMESICKNESS_KEYWORDS = [
@@ -45,63 +37,36 @@ HOMESICKNESS_KEYWORDS = [
 # Load resilience strategies
 def load_resilience_strategies():
     try:
-        with open('static/data/resilience_strategies.json', 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        # Default strategies if file not found
+        # Try to load from static/data first
+        file_path = os.path.join('static', 'data', 'resilience_strategies.json')
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                return json.load(f)
+        
+        # Fallback to default strategies if file doesn't exist
+        logging.warning("Resilience strategies file not found, using defaults")
         return {
-            "high": [
+            "strategies": [
                 {
-                    "title": "Connect with UBC International Student Community",
-                    "description": "Attend events organized by the UBC International Student Association to meet others experiencing similar challenges.",
-                    "steps": ["Find upcoming events on the UBC website", "Attend at least one event this week", "Introduce yourself to at least three people"]
+                    "name": "Connect with Home",
+                    "description": "Schedule regular video calls with family and friends back home",
+                    "category": "social"
                 },
                 {
-                    "title": "Virtual Family Connection",
-                    "description": "Schedule regular video calls with family and friends from home.",
-                    "steps": ["Set a weekly call time that works across time zones", "Share your experiences and listen to theirs", "Create a shared digital photo album"]
+                    "name": "Explore Local Culture",
+                    "description": "Try local restaurants and attend cultural events",
+                    "category": "cultural"
                 },
                 {
-                    "title": "Cultural Comfort Food",
-                    "description": "Find restaurants or learn to cook familiar dishes from your home country.",
-                    "steps": ["Research local restaurants serving your cuisine", "Learn one recipe from home each week", "Host a small cultural dinner with new friends"]
-                }
-            ],
-            "medium": [
-                {
-                    "title": "Gratitude Journaling",
-                    "description": "Write down three things you appreciate about your new environment daily.",
-                    "steps": ["Get a dedicated notebook", "Set a daily reminder", "Reflect on positive aspects of your day before sleep"]
-                },
-                {
-                    "title": "Explore Vancouver",
-                    "description": "Discover beautiful locations around Vancouver to create new positive memories.",
-                    "steps": ["Visit Stanley Park", "Explore Granville Island", "Take photos of places that make you happy"]
-                },
-                {
-                    "title": "UBC Campus Resources",
-                    "description": "Utilize UBC's counseling and wellness services designed for international students.",
-                    "steps": ["Book an initial consultation with UBC Counseling", "Attend a wellness workshop", "Join a peer support group"]
-                }
-            ],
-            "low": [
-                {
-                    "title": "Create a Comfort Corner",
-                    "description": "Design a space in your room with familiar items from home.",
-                    "steps": ["Add photos, souvenirs or decorations from home", "Include sensory elements like familiar scents", "Make it your go-to relaxation spot"]
-                },
-                {
-                    "title": "Mindfulness Practice",
-                    "description": "Learn basic mindfulness techniques to stay grounded and present.",
-                    "steps": ["Try a 5-minute guided meditation daily", "Practice deep breathing when feeling overwhelmed", "Use the UBC Wellness Centre resources"]
-                },
-                {
-                    "title": "Join a Club or Activity",
-                    "description": "Find a club or activity that connects to your interests or culture.",
-                    "steps": ["Browse UBC's club directory", "Attend an introductory meeting", "Participate regularly in one group activity"]
+                    "name": "Build New Routines",
+                    "description": "Create a daily schedule that includes both familiar and new activities",
+                    "category": "routine"
                 }
             ]
         }
+    except Exception as e:
+        logging.error(f"Error loading resilience strategies: {e}")
+        return {"strategies": []}
 
 def analyze_text(text):
     """
