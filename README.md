@@ -54,15 +54,47 @@ Before running HomeBridge, ensure you have:
 
 4. Set up environment variables:
    ```bash
-   # Copy the example environment file
+   # Step 1: Copy the example environment file
    cp .env.example .env
    
-   # Edit .env with your configuration
-   # You'll need to:
-   # 1. Generate a secure SESSION_SECRET (you can use: python -c "import secrets; print(secrets.token_hex(32))")
-   # 2. Get a GEMINI_API_KEY from Google AI Studio (https://makersuite.google.com/)
-   # 3. Update other variables as needed
+   # Step 2: Edit .env with your configuration
+   # Open .env in your preferred text editor and update the following:
+   
+   # 1. Generate a secure SESSION_SECRET:
+   #    Run this command in your terminal:
+   #    python -c "import secrets; print(secrets.token_hex(32))"
+   #    Copy the output and replace 'your_session_secret_here' in .env
+   
+   # 2. Get a GEMINI_API_KEY:
+   #    a. Go to https://makersuite.google.com/
+   #    b. Sign in with your Google account
+   #    c. Click on "Get API key"
+   #    d. Copy the API key and replace 'your_gemini_api_key_here' in .env
+   
+   # 3. Database Configuration:
+   #    - For local development, you can use the default SQLite database
+   #    - If using PostgreSQL, update DATABASE_URL with your credentials
+   
+   # 4. Optional Settings:
+   #    - FLASK_ENV: Set to 'development' for local development
+   #    - FLASK_DEBUG: Set to 1 for detailed error messages
+   #    - SENTRY_DSN: Only needed if you want error tracking
    ```
+
+   Example of a properly configured .env file:
+   ```
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   FLASK_DEBUG=1
+   SESSION_SECRET=8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+   GEMINI_API_KEY=AIzaSyA1234567890abcdefghijklmnopqrstuvwxyz
+   DATABASE_URL=postgresql://user:password@localhost:5432/homebridge
+   ```
+
+   ⚠️ Important Notes:
+   - Never commit your .env file to version control
+   - Keep your API keys and secrets secure
+   - The example values above are placeholders - replace them with your actual values
 
 5. Install NLTK resources:
    ```bash
