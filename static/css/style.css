@@ -6,6 +6,7 @@
 }
 
 body {
+    font-family: 'Aerial', sans-serif;
     transition: opacity 0.5s ease;
     background-color: #212529; /* Revert to dark background */
     color: #f8f9fa; /* Light text color for readability */
@@ -167,7 +168,7 @@ body {
 }
 
 .heard-section {
-    background-color: #212529 !important;
+    background-color: #212529;
     color: #f8f9fa;
     border-radius: 8px;
     padding: 20px;
@@ -177,7 +178,7 @@ body {
 }
 
 .quick-tips {
-    background-color: #212529 !important;
+    background-color: #212529;
     color: #f8f9fa;
     border-radius: 8px;
     padding: 20px;
@@ -187,7 +188,7 @@ body {
 }
 
 .user-response {
-    background-color: #212529 !important;
+    background-color: #212529;
     color: #f8f9fa;
     border-radius: 8px;
     padding: 20px;
@@ -196,7 +197,7 @@ body {
 }
 
 .input-background {
-    background-color: #212529 !important;
+    background-color: #212529;
     color: #f8f9fa;
     border-radius: 8px;
     padding: 20px;
