@@ -30,15 +30,29 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
+    "pool_size": 10,
+    "max_overflow": 20
 }
+
+# Add error handling for database connection
+def init_db():
+    try:
+        with app.app_context():
+            db.create_all()
+            logging.info("Database initialized successfully")
+    except Exception as e:
+        logging.error(f"Error initializing database: {e}")
+        raise
+
 # initialize the app with the extension, flask-sqlalchemy >= 3.0.x
 db.init_app(app)
+
+# Initialize database
+init_db()
 
 with app.app_context():
     # Make sure to import the models here or their tables won't be created
     import models  # noqa: F401
-
-    db.create_all()
 
 # Import routes after app and db are initialized
 from routes import *
