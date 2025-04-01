@@ -39,7 +39,7 @@ def init_db():
     try:
         with app.app_context():
             # Import models here to ensure they're registered
-            from models import User, JournalEntry, MoodEntry, GratitudeEntry
+            from models import User, Interaction, ProgressLog, Feedback, Resource
             # Create all tables
             db.create_all()
             logging.info("Database initialized successfully")
