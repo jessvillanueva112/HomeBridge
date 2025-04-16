@@ -23,35 +23,41 @@ def create_app(test_config=None):
     """Create and configure the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
     
-    # Configure the app
+    # Load configuration
     if test_config is None:
         # Load the instance config, if it exists, when not testing
-        app.config.from_mapping(
-            SECRET_KEY=os.environ.get('SESSION_SECRET', 'dev'),
-            SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL', 'sqlite:///homesickness.db'),
-            SQLALCHEMY_TRACK_MODIFICATIONS=False
-        )
+        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_envvar('APP_SETTINGS', silent=True)
+        
+        # Set default configuration
+        app.config.setdefault('SQLALCHEMY_DATABASE_URI', 
+            os.getenv('DATABASE_URL', f'sqlite:///{os.path.join(app.instance_path, "homesickness.db")}'))
+        app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', False)
+        app.config.setdefault('SECRET_KEY', os.getenv('SESSION_SECRET', 'dev'))
     else:
         # Load the test config if passed in
         app.config.update(test_config)
-
+        # Ensure test database uses a separate path
+        if 'SQLALCHEMY_DATABASE_URI' not in test_config:
+            app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(app.instance_path, "test.db")}'
+    
     # Ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
+    
     # Initialize extensions
     db.init_app(app)
-
+    
     # Register blueprints
     from routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
+    
     # Initialize database
     with app.app_context():
         init_db()
-
+    
     return app
 
 def init_db():
