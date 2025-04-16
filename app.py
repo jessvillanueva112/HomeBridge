@@ -18,62 +18,67 @@ class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
-# create the app
-app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", os.urandom(24))
 
-# configure the database, relative to the app instance folder
-database_url = os.environ.get("DATABASE_URL", "sqlite:///homesickness.db")
-if database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-    "pool_size": 10,
-    "max_overflow": 20
-}
+def create_app(test_config=None):
+    """Create and configure the Flask application."""
+    app = Flask(__name__, instance_relative_config=True)
+    
+    # Configure the app
+    if test_config is None:
+        # Load the instance config, if it exists, when not testing
+        app.config.from_mapping(
+            SECRET_KEY=os.environ.get('SESSION_SECRET', 'dev'),
+            SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL', 'sqlite:///homesickness.db'),
+            SQLALCHEMY_TRACK_MODIFICATIONS=False
+        )
+    else:
+        # Load the test config if passed in
+        app.config.update(test_config)
 
-# Add error handling for database connection
-def init_db():
+    # Ensure the instance folder exists
     try:
-        with app.app_context():
-            # Import models here to ensure they're registered
-            from models import User, Interaction, ProgressLog, Feedback, Resource
-            # Create all tables
-            db.create_all()
-            logging.info("Database initialized successfully")
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    # Initialize extensions
+    db.init_app(app)
+
+    # Register blueprints
+    from routes import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    # Initialize database
+    with app.app_context():
+        init_db()
+
+    return app
+
+def init_db():
+    """Initialize the database with required tables."""
+    try:
+        # Import models here to avoid circular imports
+        from models import User, Interaction, ProgressLog, Feedback, Resource
+        
+        # Create all tables
+        db.create_all()
+        
+        # Create demo user if it doesn't exist
+        if not User.query.filter_by(username='demo').first():
+            demo_user = User(
+                username='demo',
+                email='demo@example.com',
+                password_hash='demo_password_hash'  # This is just for testing
+            )
+            db.session.add(demo_user)
+            db.session.commit()
             
-            # Create demo user if it doesn't exist
-            from routes import DEMO_USER_ID
-            if not User.query.get(DEMO_USER_ID):
-                demo_user = User(
-                    id=DEMO_USER_ID,
-                    username="demo_user",
-                    email="demo@example.com",
-                    password_hash="demo_password_hash"  # This is just for demo purposes
-                )
-                db.session.add(demo_user)
-                db.session.commit()
-                logging.info("Demo user created successfully")
+        logging.info("Database initialized successfully")
     except Exception as e:
-        logging.error(f"Error initializing database: {e}")
+        logging.error(f"Error initializing database: {str(e)}")
         raise
 
-# initialize the app with the extension, flask-sqlalchemy >= 3.0.x
-db.init_app(app)
-
-# Initialize database
-init_db()
-
-with app.app_context():
-    # Make sure to import the models here or their tables won't be created
-    import models  # noqa: F401
-
-# Import routes after app and db are initialized
-from routes import *
-
-# Add health check endpoint for Render
-@app.route('/health')
-def health_check():
-    return {'status': 'healthy'}, 200
+# Only create the application instance if running this file directly
+if __name__ == '__main__':
+    app = create_app()
+    app.run(host='0.0.0.0', port=5003)
