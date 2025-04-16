@@ -51,4 +51,20 @@ tests/
 docs/
 
 # NLTK data (will be downloaded at runtime)
-nltk_data/ 
+nltk_data/
+
+# Coverage and testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Flask
+.webassets-cache
+flask_session/ 
