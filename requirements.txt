@@ -12,14 +12,6 @@ werkzeug>=3.0.6
 nltk>=3.9.1
 numpy>=1.24.4
 scikit-learn>=1.3.2
-google-generativeai==0.1.0rc1
-
-# Data visualization and dashboard
-streamlit>=1.40.1
-matplotlib>=3.7.5
-pandas>=2.0.3
-plotly>=6.0.0
-seaborn>=0.13.2
 
 # Security
 flask-talisman>=1.1.0
