@@ -15,6 +15,7 @@
   "env": {
     "FLASK_APP": "app.py",
     "FLASK_ENV": "production",
-    "PYTHONPATH": "."
+    "PYTHONPATH": ".",
+    "NLTK_DATA": "/tmp/nltk_data"
   }
 } 

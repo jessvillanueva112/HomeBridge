@@ -10,18 +10,23 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
+# Set NLTK data path to temporary directory
+nltk.data.path.append(os.getenv('NLTK_DATA', '/tmp/nltk_data'))
+
 # Download necessary NLTK data
 def download_nltk_data():
     try:
-        nltk.data.find('tokenizers/punkt')
-        nltk.data.find('corpora/stopwords')
-        nltk.data.find('sentiment/vader_lexicon')
-    except LookupError:
-        logging.info("Downloading required NLTK data...")
-        nltk.download('punkt')
-        nltk.download('stopwords')
-        nltk.download('vader_lexicon')
-        logging.info("NLTK data downloaded successfully")
+        # Check if data already exists
+        if not os.path.exists(os.path.join(nltk.data.path[0], 'tokenizers/punkt')):
+            logging.info("Downloading required NLTK data...")
+            nltk.download('punkt', download_dir=nltk.data.path[0])
+            nltk.download('stopwords', download_dir=nltk.data.path[0])
+            nltk.download('vader_lexicon', download_dir=nltk.data.path[0])
+            logging.info("NLTK data downloaded successfully")
+    except Exception as e:
+        logging.error(f"Error downloading NLTK data: {str(e)}")
+        # Fallback to basic tokenization if NLTK data is not available
+        logging.warning("Using fallback tokenization method")
 
 # Download NLTK data on import
 download_nltk_data()
