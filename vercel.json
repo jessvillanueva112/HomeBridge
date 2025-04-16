@@ -22,5 +22,20 @@
     "NLTK_DATA": "/tmp/nltk_data"
   },
   "regions": ["iad1"],
-  "public": false
+  "public": false,
+  "ignore": [
+    "nltk_data/**",
+    "__pycache__/**",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".pytest_cache/**",
+    ".coverage",
+    "htmlcov/**",
+    "instance/**",
+    "tests/**",
+    "docs/**",
+    ".venv/**",
+    "venv/**"
+  ]
 } 

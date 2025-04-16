@@ -10,26 +10,49 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-# Set NLTK data path to temporary directory
-nltk.data.path.append(os.getenv('NLTK_DATA', '/tmp/nltk_data'))
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Download necessary NLTK data
 def download_nltk_data():
+    """Download required NLTK data to /tmp directory."""
     try:
-        # Check if data already exists
-        if not os.path.exists(os.path.join(nltk.data.path[0], 'tokenizers/punkt')):
-            logging.info("Downloading required NLTK data...")
-            nltk.download('punkt', download_dir=nltk.data.path[0])
-            nltk.download('stopwords', download_dir=nltk.data.path[0])
-            nltk.download('vader_lexicon', download_dir=nltk.data.path[0])
-            logging.info("NLTK data downloaded successfully")
+        # Set NLTK data path to /tmp
+        nltk.data.path.append('/tmp/nltk_data')
+        
+        # Create directory if it doesn't exist
+        os.makedirs('/tmp/nltk_data', exist_ok=True)
+        
+        # Download only required resources
+        required_data = {
+            'tokenizers/punkt': 'punkt',
+            'corpora/stopwords': 'stopwords',
+            'sentiment/vader_lexicon': 'vader_lexicon'
+        }
+        
+        for path, resource in required_data.items():
+            try:
+                nltk.data.find(path)
+                logger.info(f"NLTK resource {resource} already downloaded")
+            except LookupError:
+                logger.info(f"Downloading NLTK resource: {resource}")
+                nltk.download(resource, download_dir='/tmp/nltk_data')
+                logger.info(f"Successfully downloaded {resource}")
+                
     except Exception as e:
-        logging.error(f"Error downloading NLTK data: {str(e)}")
-        # Fallback to basic tokenization if NLTK data is not available
-        logging.warning("Using fallback tokenization method")
+        logger.error(f"Error downloading NLTK data: {str(e)}")
+        raise
 
 # Download NLTK data on import
 download_nltk_data()
+
+# Initialize NLTK components
+try:
+    sia = SentimentIntensityAnalyzer()
+    stop_words = set(stopwords.words('english'))
+except Exception as e:
+    logger.error(f"Error initializing NLTK components: {str(e)}")
+    raise
 
 # Keywords related to homesickness
 HOMESICKNESS_KEYWORDS = [
@@ -47,7 +70,7 @@ def load_resilience_strategies():
             with open(file_path, 'r') as f:
                 return json.load(f)
         else:
-            logging.warning("Resilience strategies file not found, using defaults")
+            logger.warning("Resilience strategies file not found, using defaults")
             return {
                 'social': [
                     {
@@ -93,7 +116,7 @@ def load_resilience_strategies():
                 ]
             }
     except Exception as e:
-        logging.error(f"Error loading resilience strategies: {str(e)}")
+        logger.error(f"Error loading resilience strategies: {str(e)}")
         return {
             'social': [],
             'cultural': [],
@@ -107,9 +130,6 @@ def analyze_text(text):
         dict: Analysis results containing sentiment, keywords, and suggestions
     """
     try:
-        # Initialize sentiment analyzer
-        sia = SentimentIntensityAnalyzer()
-        
         # Get sentiment score
         sentiment = sia.polarity_scores(text)
         sentiment_score = sentiment['compound']
@@ -118,16 +138,9 @@ def analyze_text(text):
         try:
             tokens = word_tokenize(text.lower())
         except Exception as e:
-            logging.error(f"Error with word_tokenize: {str(e)}")
+            logger.error(f"Error with word_tokenize: {str(e)}")
             # Fallback if word_tokenize fails
             tokens = text.lower().split()
-        
-        try:
-            stop_words = set(stopwords.words('english'))
-        except Exception as e:
-            logging.error(f"Error loading stopwords: {str(e)}")
-            # Basic English stopwords as fallback
-            stop_words = {'a', 'an', 'the', 'and', 'or', 'but', 'if', 'of', 'in', 'on', 'at', 'to', 'is', 'are', 'was', 'were'}
         
         filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
         
@@ -151,7 +164,7 @@ def analyze_text(text):
             if category in strategies and strategies[category]:
                 suggestions.append(random.choice(strategies[category]))
         
-        logging.debug(f"Text analysis - Sentiment: {sentiment_score}, Homesickness level: {homesickness_level}")
+        logger.debug(f"Text analysis - Sentiment: {sentiment_score}, Homesickness level: {homesickness_level}")
         return {
             'sentiment': sentiment_score,
             'keywords': keywords,
@@ -160,7 +173,7 @@ def analyze_text(text):
         }
         
     except Exception as e:
-        logging.error(f"Error analyzing text: {str(e)}")
+        logger.error(f"Error analyzing text: {str(e)}")
         # Return default values in case of error
         return {
             'sentiment': 0.0,
