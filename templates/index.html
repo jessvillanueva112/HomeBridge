@@ -1,197 +1,115 @@
-{% extends 'layout.html' %}
+{% extends "base.html" %}
 
-{% block head %}
-<style>
-    .voice-container {
-        min-height: 400px;
-    }
-    
-    .voice-btn {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-    
-    .voice-btn i {
-        font-size: 2rem;
-    }
-    
-    .voice-btn.recording {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(var(--bs-info-rgb), 0.7);
-        }
-        
-        70% {
-            transform: scale(1.1);
-            box-shadow: 0 0 0 10px rgba(var(--bs-info-rgb), 0);
-        }
-        
-        100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(var(--bs-info-rgb), 0);
-        }
-    }
-    
-    .strategy-card {
-        transition: all 0.3s ease;
-    }
-    
-    .strategy-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .step-item {
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: flex-start;
-    }
-    
-    .step-item i {
-        margin-right: 0.5rem;
-        margin-top: 0.25rem;
-    }
-</style>
-{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8 offset-md-2 text-center">
-        <h1 class="display-5 mb-3">Welcome to HomeBridge</h1>
-        <p class="lead">
-            A voice-interactive support system for UBC international students experiencing homesickness.
-        </p>
-        <p>
-            Talk to our virtual assistant about how you're feeling, and receive personalized resilience strategies.
-        </p>
-    </div>
+<div class="hero-section">
+    <h1>Welcome to HomeBridge</h1>
+    <p>Your companion for managing homesickness and cultural adjustment</p>
 </div>
 
-<div class="row">
-    <div class="col-lg-10 offset-lg-1">
-        <div class="card bg-dark shadow">
-            <div class="card-body voice-container">
-                <div id="initial-prompt" class="text-center py-5">
-                    <h2 class="mb-4">How are you feeling today?</h2>
-                    <p class="mb-4">Tap the microphone button and speak naturally about your experience as an international student at UBC.</p>
-                    <div class="d-flex justify-content-center">
-                        <button id="voice-btn" class="voice-btn btn btn-info">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                    </div>
-                    <p class="mt-3 text-muted"><small>Your voice will be processed to provide personalized support strategies.</small></p>
-                </div>
-                
-                <div id="recording-indicator" class="text-center py-5" style="display: none;">
-                    <h2 class="mb-4">I'm listening...</h2>
-                    <p class="mb-4">Share how you're feeling, what you miss about home, or challenges you're facing.</p>
-                    <div class="d-flex justify-content-center">
-                        <button id="stop-btn" class="voice-btn btn btn-danger recording">
-                            <i class="fas fa-stop"></i>
-                        </button>
-                    </div>
-                    <div class="mt-4">
-                        <div class="spinner-grow text-info" role="status">
-                            <span class="visually-hidden">Recording...</span>
-                        </div>
-                        <div class="text-muted mt-2" id="recording-time">00:00</div>
-                    </div>
-                </div>
-                
-                <div id="processing-indicator" class="text-center py-5" style="display: none;">
-                    <div class="spinner-border text-info" role="status">
-                        <span class="visually-hidden">Processing...</span>
-                    </div>
-                    <h4 class="mt-3">Processing your response...</h4>
-                    <p class="text-muted">Analyzing your experience to find helpful strategies.</p>
-                </div>
-                
-                <div id="transcription-result" style="display: none;">
-                    <h4 class="mb-3">Here's what I heard:</h4>
-                    <div class="card mb-4">
-                        <div class="card-body bg-secondary-subtle">
-                            <p id="transcript-text" class="mb-0 fst-italic"></p>
-                        </div>
-                    </div>
-                    
-                    <div id="analysis-section">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Sentiment Analysis</h5>
-                                        <div class="progress mb-3" style="height: 20px;">
-                                            <div id="sentiment-bar" class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
-                                        </div>
-                                        <p id="sentiment-description" class="card-text"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Homesickness Level</h5>
-                                        <div class="progress mb-3" style="height: 20px;">
-                                            <div id="homesickness-bar" class="progress-bar bg-info" role="progressbar" style="width: 50%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="10">5/10</div>
-                                        </div>
-                                        <p id="homesickness-description" class="card-text"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <h4 class="mb-3">Personalized Resilience Strategies</h4>
-                    <div id="strategies-container" class="row"></div>
-                    
-                    <div class="text-center mt-4">
-                        <button id="restart-btn" class="btn btn-primary">
-                            <i class="fas fa-redo me-2"></i>Try Again
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="voice-interaction">
+    <div class="chat-container" id="chatContainer">
+        <!-- Chat messages will be added here dynamically -->
     </div>
-</div>
+    
+    <div class="voice-controls">
+        <button id="startRecording" class="btn btn-primary">
+            Start Recording
+        </button>
+        <button id="stopRecording" class="btn btn-danger" style="display: none;">
+            Stop Recording
+        </button>
+    </div>
 
-<div class="row mt-5">
-    <div class="col-md-6">
-        <div class="card bg-dark-subtle shadow h-100">
-            <div class="card-body">
-                <h3 class="card-title">About HomeBridge</h3>
-                <p>HomeBridge was developed to help UBC's international students navigate the emotional challenges of studying far from home.</p>
-                <p>Our voice-interactive system uses machine learning to analyze your experiences and provide personalized resilience strategies based on proven psychological techniques.</p>
-                <p>This is an MVP designed with input from international students and mental health professionals - your feedback helps us improve!</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card bg-info-subtle shadow h-100">
-            <div class="card-body">
-                <h3 class="card-title">Quick Tips</h3>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Speak naturally about your feelings</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Mention specific challenges you're facing</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Try the recommended strategies for at least a week</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Track your progress in the Progress section</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Explore UBC resources for additional support</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-info me-2"></i> Share feedback to help us improve</li>
-                </ul>
-            </div>
-        </div>
+    <div class="text-input">
+        <input type="text" id="textInput" placeholder="Type your message here...">
+        <button id="sendText" class="btn btn-primary">Send</button>
     </div>
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/voice_interaction.js') }}"></script>
+{% block extra_js %}
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById('startRecording').addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+
+            try {
+                const response = await fetch('{{ url_for("main.process_voice") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                addMessage('assistant', data.response);
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('error', 'Sorry, there was an error processing your message.');
+            }
+
+            audioChunks = [];
+        };
+
+        mediaRecorder.start();
+        document.getElementById('startRecording').style.display = 'none';
+        document.getElementById('stopRecording').style.display = 'block';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error accessing microphone. Please ensure you have granted microphone permissions.');
+    }
+});
+
+document.getElementById('stopRecording').addEventListener('click', () => {
+    mediaRecorder.stop();
+    document.getElementById('startRecording').style.display = 'block';
+    document.getElementById('stopRecording').style.display = 'none';
+});
+
+document.getElementById('sendText').addEventListener('click', async () => {
+    const textInput = document.getElementById('textInput');
+    const message = textInput.value.trim();
+    
+    if (message) {
+        addMessage('user', message);
+        textInput.value = '';
+
+        try {
+            const response = await fetch('{{ url_for("main.process_voice") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: message })
+            });
+            const data = await response.json();
+            addMessage('assistant', data.response);
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('error', 'Sorry, there was an error processing your message.');
+        }
+    }
+});
+
+function addMessage(type, content) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+    messageDiv.textContent = content;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
 {% endblock %}

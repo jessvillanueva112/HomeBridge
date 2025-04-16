@@ -15,31 +15,43 @@ class User(UserMixin, db.Model):
 class Interaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    transcript = db.Column(db.Text, nullable=False)
+    input_text = db.Column(db.Text, nullable=False)
     sentiment_score = db.Column(db.Float)
     homesickness_level = db.Column(db.Integer)  # Scale 1-10
-    recommended_strategies = db.Column(db.Text)
+    response_text = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ProgressLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    mood_rating = db.Column(db.Integer)  # Scale 1-10
-    gratitude_entry = db.Column(db.Text)
-    activities_completed = db.Column(db.Text)
+    mood_score = db.Column(db.Integer)  # Scale 1-10
+    notes = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     rating = db.Column(db.Integer)  # Scale 1-5
-    comments = db.Column(db.Text)
+    comment = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Resource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(64), nullable=False)
-    url = db.Column(db.String(256))
-    contact_info = db.Column(db.String(256))
+    url = db.Column(db.String(500), nullable=False)
+    category = db.Column(db.String(50), nullable=False, default='general')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Resource {self.title}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'url': self.url,
+            'category': self.category,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }

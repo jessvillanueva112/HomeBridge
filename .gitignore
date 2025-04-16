@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -15,39 +16,53 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
 # Virtual Environment
+.venv/
 venv/
 ENV/
 env/
-.venv/
-.env
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
 
-# Flask
-instance/
-.webassets-cache
-flask_session/
+# Environment variables
+.env
+.env.*
+!.env.example
 
 # Database
 *.db
-*.sqlite
 *.sqlite3
+instance/
 
 # Logs
 *.log
 logs/
-log/
+
+# Local development
+tests/
+docs/
+
+# NLTK data
+nltk_data/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Flask
+.webassets-cache
+flask_session/
 
 # Coverage reports
 htmlcov/
@@ -67,7 +82,4 @@ coverage.xml
 .python-version
 
 # Streamlit
-.streamlit/
-
-# Local development
-local_settings.py 
+.streamlit/ 

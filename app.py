@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask_login import LoginManager
 
 # Load environment variables from .env file if it exists
 env_path = Path('.') / '.env'
@@ -18,6 +19,7 @@ class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+login_manager = LoginManager()
 
 def create_app(test_config=None):
     """Create and configure the Flask application."""
@@ -49,6 +51,7 @@ def create_app(test_config=None):
     
     # Initialize extensions
     db.init_app(app)
+    login_manager.init_app(app)
     
     # Register blueprints
     from routes import main as main_blueprint

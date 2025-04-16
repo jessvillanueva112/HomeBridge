@@ -39,56 +39,72 @@ HOMESICKNESS_KEYWORDS = [
     'homesick', 'memory', 'memories', 'parents', 'siblings', 'comfort'
 ]
 
-# Load resilience strategies
 def load_resilience_strategies():
+    """Load resilience strategies from JSON file or return defaults."""
     try:
-        # Try to load from static/data first
         file_path = os.path.join('static', 'data', 'resilience_strategies.json')
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 return json.load(f)
-        
-        # Fallback to default strategies if file doesn't exist
-        logging.warning("Resilience strategies file not found, using defaults")
-        return {
-            "social": [
-                {
-                    "name": "Connect with Home",
-                    "description": "Schedule regular video calls with family and friends back home",
-                    "steps": ["Set up weekly call times", "Share photos and updates", "Write letters or emails"]
-                },
-                {
-                    "name": "Join Student Groups",
-                    "description": "Connect with other international students through campus organizations",
-                    "steps": ["Attend club fairs", "Join cultural associations", "Participate in events"]
-                }
-            ],
-            "cultural": [
-                {
-                    "name": "Explore Local Culture",
-                    "description": "Try local restaurants and attend cultural events",
-                    "steps": ["Visit local markets", "Try new foods", "Attend community events"]
-                }
-            ],
-            "routine": [
-                {
-                    "name": "Build New Routines",
-                    "description": "Create a daily schedule that includes both familiar and new activities",
-                    "steps": ["Set regular meal times", "Plan daily activities", "Include exercise"]
-                }
-            ]
-        }
+        else:
+            logging.warning("Resilience strategies file not found, using defaults")
+            return {
+                'social': [
+                    {
+                        'name': 'Connect with Home',
+                        'description': 'Regular video calls with family and friends',
+                        'steps': [
+                            'Schedule weekly video calls with family',
+                            'Join family group chats',
+                            'Share daily updates with close friends'
+                        ]
+                    },
+                    {
+                        'name': 'Join Student Groups',
+                        'description': 'Connecting with other international students',
+                        'steps': [
+                            'Attend UBC International Student Association events',
+                            'Join cultural student groups',
+                            'Participate in language exchange programs'
+                        ]
+                    }
+                ],
+                'cultural': [
+                    {
+                        'name': 'Explore Local Culture',
+                        'description': 'Engaging with local restaurants and events',
+                        'steps': [
+                            'Visit local cultural festivals',
+                            'Try new restaurants weekly',
+                            'Join cultural workshops'
+                        ]
+                    }
+                ],
+                'routine': [
+                    {
+                        'name': 'Build New Routines',
+                        'description': 'Creating a daily schedule with familiar and new activities',
+                        'steps': [
+                            'Establish a morning routine',
+                            'Schedule regular study times',
+                            'Include exercise in daily schedule'
+                        ]
+                    }
+                ]
+            }
     except Exception as e:
-        logging.error(f"Error loading resilience strategies: {e}")
-        return {"social": [], "cultural": [], "routine": []}
+        logging.error(f"Error loading resilience strategies: {str(e)}")
+        return {
+            'social': [],
+            'cultural': [],
+            'routine': []
+        }
 
 def analyze_text(text):
     """
     Analyze text to determine sentiment and homesickness level.
-    Using traditional NLP techniques.
-    
     Returns:
-        dict: Analysis results containing sentiment_score and homesickness_level
+        dict: Analysis results containing sentiment, keywords, and suggestions
     """
     try:
         # Initialize sentiment analyzer
@@ -123,11 +139,24 @@ def analyze_text(text):
         # Convert to 1-10 scale
         homesickness_level = min(10, max(1, round(normalized_count * 3 + (1 - sentiment_score) * 5)))
         
+        # Get matching keywords
+        keywords = list(set(word for word in filtered_tokens if word in HOMESICKNESS_KEYWORDS))
+        
+        # Get suggestions based on homesickness level
+        strategies = load_resilience_strategies()
+        suggestions = []
+        
+        # Select strategies from each category
+        for category in ['social', 'cultural', 'routine']:
+            if category in strategies and strategies[category]:
+                suggestions.append(random.choice(strategies[category]))
+        
         logging.debug(f"Text analysis - Sentiment: {sentiment_score}, Homesickness level: {homesickness_level}")
         return {
             'sentiment': sentiment_score,
-            'keywords': list(set(word for word in filtered_tokens if word in HOMESICKNESS_KEYWORDS)),
-            'suggestions': get_resilience_strategies(text, homesickness_level)
+            'keywords': keywords,
+            'suggestions': suggestions,
+            'homesickness_level': homesickness_level
         }
         
     except Exception as e:
@@ -136,48 +165,6 @@ def analyze_text(text):
         return {
             'sentiment': 0.0,
             'keywords': [],
-            'suggestions': get_resilience_strategies('', 5)
+            'suggestions': [],
+            'homesickness_level': 5
         }
-
-def get_resilience_strategies(text, homesickness_level):
-    """
-    Get personalized resilience strategies based on text content and homesickness level.
-    
-    Args:
-        text (str): User's input text
-        homesickness_level (int): Calculated homesickness level (1-10)
-        
-    Returns:
-        list: List of strategy dictionaries
-    """
-    try:
-        strategies = load_resilience_strategies()
-        
-        # Validate homesickness_level is within expected range
-        homesickness_level = min(10, max(1, int(homesickness_level)))
-        
-        # Get strategies from each category
-        all_strategies = []
-        for category in ['social', 'cultural', 'routine']:
-            if category in strategies:
-                all_strategies.extend(strategies[category])
-        
-        # Return a subset of strategies (2-3)
-        num_strategies = min(3, len(all_strategies))
-        return random.sample(all_strategies, num_strategies) if all_strategies else []
-        
-    except Exception as e:
-        logging.error(f"Error getting resilience strategies: {str(e)}")
-        # Fallback strategies in case of error
-        return [
-            {
-                "name": "Connect with Others",
-                "description": "Spend time with friends or reach out to family back home.",
-                "steps": ["Call a family member", "Meet a friend for coffee", "Join a student club"]
-            },
-            {
-                "name": "Self-Care Practice",
-                "description": "Take time for activities that help you relax and recharge.",
-                "steps": ["Get adequate sleep", "Eat nutritious meals", "Take time for hobbies"]
-            }
-        ]
