@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Gratitude Journal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="text-center mb-4">Gratitude Journal</h1>
+            
+            <!-- Daily Gratitude Entry -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Gratitude Entry</h5>
+                    <form id="gratitudeForm" method="POST" action="{{ url_for('save_gratitude_entry') }}">
+                        <div class="mb-3">
+                            <label for="gratitudeText" class="form-label">What are you grateful for today?</label>
+                            <textarea class="form-control" id="gratitudeText" name="text" rows="4" 
+                                    placeholder="Write down three things you're grateful for..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="moodRating" class="form-label">How are you feeling today?</label>
+                            <div class="d-flex justify-content-between">
+                                <span>😔</span>
+                                <input type="range" class="form-range" id="moodRating" name="mood" min="1" max="5" value="3">
+                                <span>😊</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-journal-plus"></i> Save Entry
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Gratitude History -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Gratitude Journey</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="moodTrendChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="gratitudeFrequencyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <h6>Recent Entries</h6>
+                        <div id="gratitudeEntries" class="list-group">
+                            <!-- Recent entries will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize mood trend chart
+    const moodTrendCtx = document.getElementById('moodTrendChart').getContext('2d');
+    const moodTrendChart = new Chart(moodTrendCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Mood Rating',
+                data: [],
+                borderColor: '#FFC107',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize gratitude frequency chart
+    const frequencyCtx = document.getElementById('gratitudeFrequencyChart').getContext('2d');
+    const frequencyChart = new Chart(frequencyCtx, {
+        type: 'bar',
+        data: {
+            labels: ['This Week', 'Last Week', '2 Weeks Ago'],
+            datasets: [{
+                label: 'Entries per Week',
+                data: [0, 0, 0],
+                backgroundColor: '#4CAF50'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('gratitudeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            // Update mood trend chart
+            const labels = moodTrendChart.data.labels;
+            const values = moodTrendChart.data.datasets[0].data;
+            
+            labels.push(new Date().toLocaleDateString());
+            values.push(parseInt(formData.get('mood')));
+            
+            if (labels.length > 7) {
+                labels.shift();
+                values.shift();
+            }
+            
+            moodTrendChart.update();
+            
+            // Update frequency chart
+            frequencyChart.data.datasets[0].data = data.weekly_counts;
+            frequencyChart.update();
+            
+            // Add new entry to the list
+            const entries = document.getElementById('gratitudeEntries');
+            const entry = document.createElement('div');
+            entry.className = 'list-group-item';
+            entry.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${new Date().toLocaleString()}</h6>
+                    <small class="text-muted">Mood: ${'⭐'.repeat(parseInt(formData.get('mood')))}</small>
+                </div>
+                <p class="mb-1">${formData.get('text')}</p>
+            `;
+            entries.insertBefore(entry, entries.firstChild);
+            
+            if (entries.children.length > 5) {
+                entries.removeChild(entries.lastChild);
+            }
+            
+            // Clear the form
+            document.getElementById('gratitudeText').value = '';
+            document.getElementById('moodRating').value = '3';
+            
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    // Load initial data
+    async function loadInitialData() {
+        try {
+            const response = await fetch('/get_gratitude_history');
+            const data = await response.json();
+            
+            // Update mood trend chart
+            moodTrendChart.data.labels = data.dates;
+            moodTrendChart.data.datasets[0].data = data.moods;
+            moodTrendChart.update();
+            
+            // Update frequency chart
+            frequencyChart.data.datasets[0].data = data.weekly_counts;
+            frequencyChart.update();
+            
+            // Populate recent entries
+            const entries = document.getElementById('gratitudeEntries');
+            data.recent_entries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'list-group-item';
+                entryElement.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${new Date(entry.date).toLocaleString()}</h6>
+                        <small class="text-muted">Mood: ${'⭐'.repeat(entry.mood)}</small>
+                    </div>
+                    <p class="mb-1">${entry.text}</p>
+                `;
+                entries.appendChild(entryElement);
+            });
+            
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    loadInitialData();
+});
+</script>
+{% endblock %} 

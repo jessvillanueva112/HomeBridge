@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Mood Tracker{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="text-center mb-4">Mood Tracker</h1>
+            
+            <!-- Mood Input Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">How are you feeling today?</h5>
+                    <form id="moodForm" method="POST" action="{{ url_for('analyze_sentiment') }}">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="moodText" name="text" rows="4" 
+                                    placeholder="Share your thoughts and feelings..."></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-primary" id="startRecording">
+                                <i class="bi bi-mic"></i> Start Recording
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sentiment Analysis Results -->
+            <div class="card mb-4" id="sentimentResults" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Analysis Results</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="sentimentDetails">
+                                <p><strong>Overall Sentiment:</strong> <span id="overallSentiment"></span></p>
+                                <p><strong>Key Emotions:</strong> <span id="keyEmotions"></span></p>
+                                <p><strong>Suggestions:</strong> <span id="suggestions"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentiment History -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Mood History</h5>
+                    <canvas id="sentimentHistoryChart"></canvas>
+                    <div class="mt-3">
+                        <h6>Recent Entries</h6>
+                        <div id="recentEntries" class="list-group">
+                            <!-- Recent entries will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sentiment chart
+    const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+    const sentimentChart = new Chart(sentimentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#4CAF50', '#F44336', '#FFC107']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Initialize history chart
+    const historyCtx = document.getElementById('sentimentHistoryChart').getContext('2d');
+    const historyChart = new Chart(historyCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Sentiment Score',
+                data: [],
+                borderColor: '#2196F3',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    min: -1,
+                    max: 1
+                }
+            }
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('moodForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            // Update sentiment chart
+            sentimentChart.data.datasets[0].data = [
+                data.sentiment.positive,
+                data.sentiment.negative,
+                data.sentiment.neutral
+            ];
+            sentimentChart.update();
+            
+            // Update sentiment details
+            document.getElementById('overallSentiment').textContent = data.sentiment.compound > 0 ? 'Positive' : 'Negative';
+            document.getElementById('keyEmotions').textContent = data.emotions.join(', ');
+            document.getElementById('suggestions').textContent = data.suggestions;
+            
+            // Show results
+            document.getElementById('sentimentResults').style.display = 'block';
+            
+            // Update history
+            updateHistory(data);
+            
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    // Handle voice recording
+    let mediaRecorder;
+    let audioChunks = [];
+    
+    document.getElementById('startRecording').addEventListener('click', async function() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                
+                try {
+                    const response = await fetch('/transcribe', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    document.getElementById('moodText').value = data.text;
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            };
+            
+            mediaRecorder.start();
+            this.textContent = 'Stop Recording';
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-danger');
+            this.onclick = stopRecording;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+    
+    function stopRecording() {
+        mediaRecorder.stop();
+        this.textContent = 'Start Recording';
+        this.classList.remove('btn-danger');
+        this.classList.add('btn-outline-primary');
+        this.onclick = document.getElementById('startRecording').onclick;
+    }
+
+    function updateHistory(data) {
+        // Update history chart
+        const labels = historyChart.data.labels;
+        const values = historyChart.data.datasets[0].data;
+        
+        labels.push(new Date().toLocaleDateString());
+        values.push(data.sentiment.compound);
+        
+        if (labels.length > 7) {
+            labels.shift();
+            values.shift();
+        }
+        
+        historyChart.update();
+        
+        // Update recent entries
+        const recentEntries = document.getElementById('recentEntries');
+        const entry = document.createElement('div');
+        entry.className = 'list-group-item';
+        entry.innerHTML = `
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${new Date().toLocaleString()}</h6>
+                <small class="text-${data.sentiment.compound > 0 ? 'success' : 'danger'}">
+                    ${data.sentiment.compound > 0 ? 'Positive' : 'Negative'}
+                </small>
+            </div>
+            <p class="mb-1">${document.getElementById('moodText').value}</p>
+        `;
+        recentEntries.insertBefore(entry, recentEntries.firstChild);
+        
+        if (recentEntries.children.length > 5) {
+            recentEntries.removeChild(recentEntries.lastChild);
+        }
+    }
+});
+</script>
+{% endblock %} 

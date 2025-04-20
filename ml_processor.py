@@ -75,42 +75,88 @@ def load_resilience_strategies():
                 'social': [
                     {
                         'name': 'Connect with Home',
-                        'description': 'Regular video calls with family and friends',
+                        'description': 'Maintain meaningful connections with family and friends back home',
                         'steps': [
-                            'Schedule weekly video calls with family',
-                            'Join family group chats',
-                            'Share daily updates with close friends'
+                            'Schedule regular video calls with loved ones',
+                            'Share your daily experiences and photos',
+                            'Create a shared digital space (e.g., family chat)',
+                            'Plan virtual activities together'
                         ]
                     },
                     {
-                        'name': 'Join Student Groups',
-                        'description': 'Connecting with other international students',
+                        'name': 'Build Local Support',
+                        'description': 'Develop a support network in your new environment',
                         'steps': [
-                            'Attend UBC International Student Association events',
-                            'Join cultural student groups',
-                            'Participate in language exchange programs'
+                            'Join international student groups',
+                            'Attend cultural events and meetups',
+                            'Connect with peers from similar backgrounds',
+                            'Participate in mentorship programs'
                         ]
                     }
                 ],
                 'cultural': [
                     {
-                        'name': 'Explore Local Culture',
-                        'description': 'Engaging with local restaurants and events',
+                        'name': 'Cultural Integration',
+                        'description': 'Gradually adapt to the new cultural environment',
                         'steps': [
-                            'Visit local cultural festivals',
-                            'Try new restaurants weekly',
-                            'Join cultural workshops'
+                            'Explore local cultural events and festivals',
+                            'Try local foods and restaurants',
+                            'Learn about Canadian customs and traditions',
+                            'Share your own culture with others'
+                        ]
+                    },
+                    {
+                        'name': 'Language Practice',
+                        'description': 'Improve language skills in a supportive environment',
+                        'steps': [
+                            'Join language exchange programs',
+                            'Attend conversation circles',
+                            'Practice with native speakers',
+                            'Use language learning apps'
                         ]
                     }
                 ],
                 'routine': [
                     {
-                        'name': 'Build New Routines',
-                        'description': 'Creating a daily schedule with familiar and new activities',
+                        'name': 'Structured Daily Life',
+                        'description': 'Create a balanced daily routine',
                         'steps': [
-                            'Establish a morning routine',
-                            'Schedule regular study times',
-                            'Include exercise in daily schedule'
+                            'Set regular study and sleep schedules',
+                            'Include time for self-care and relaxation',
+                            'Plan meals and grocery shopping',
+                            'Schedule regular exercise'
+                        ]
+                    },
+                    {
+                        'name': 'Academic Organization',
+                        'description': 'Manage academic responsibilities effectively',
+                        'steps': [
+                            'Use a planner or digital calendar',
+                            'Break tasks into smaller steps',
+                            'Set realistic goals and deadlines',
+                            'Utilize academic support services'
+                        ]
+                    }
+                ],
+                'emotional': [
+                    {
+                        'name': 'Emotional Awareness',
+                        'description': 'Develop healthy emotional processing habits',
+                        'steps': [
+                            'Keep a personal journal',
+                            'Practice mindfulness and meditation',
+                            'Identify and express your feelings',
+                            'Seek professional support when needed'
+                        ]
+                    },
+                    {
+                        'name': 'Self-Care Practices',
+                        'description': 'Maintain physical and mental well-being',
+                        'steps': [
+                            'Establish a regular sleep routine',
+                            'Engage in physical activity',
+                            'Practice relaxation techniques',
+                            'Maintain a balanced diet'
                         ]
                     }
                 ]
@@ -120,7 +166,8 @@ def load_resilience_strategies():
         return {
             'social': [],
             'cultural': [],
-            'routine': []
+            'routine': [],
+            'emotional': []
         }
 
 def analyze_text(text):
